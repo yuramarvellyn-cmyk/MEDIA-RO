@@ -1742,20 +1742,28 @@
             const canvas = document.getElementById('minigame-canvas');
             const overlay = document.getElementById('minigame-overlay');
             
-            // Responsive canvas size
             const width = Math.min(400, window.innerWidth - 60);
             const height = Math.min(300, window.innerHeight - 280);
             canvas.width = width;
             canvas.height = height;
 
             minigameState.active = true;
-            minigameState.charX = width * 0.12;
+            minigameState.startX = width * 0.12;
+            minigameState.charX = minigameState.startX;
             minigameState.charY = height / 2;
-            minigameState.riverStart = width * 0.42;
-            minigameState.riverEnd = width * 0.55;
+            minigameState.riverStart = width * 0.35;
+            minigameState.riverEnd = width * 0.65;
             minigameState.houseX = width * 0.88;
             minigameState.progress = 0;
             minigameState.phase = 0;
+            minigameState.stoneIndex = 0;
+            minigameState.stones = [
+                { x: minigameState.riverStart + 20, y: height / 2 - 20 },
+                { x: minigameState.riverStart + 45, y: height / 2 + 15 },
+                { x: minigameState.riverStart + 75, y: height / 2 - 10 },
+                { x: minigameState.riverStart + 105, y: height / 2 + 20 },
+                { x: minigameState.riverStart + 130, y: height / 2 - 15 }
+            ];
             minigameState.sprite = new Image();
             minigameState.sprite.src = charSpriteUrls[state.charId] || 'https://raw.githubusercontent.com/AYAA-lab/Game-Resonance-Odyssey/4d1f20624072c139e13a3200d17f9d7947814b12/JAWA.png';
             minigameState.sprite.onload = drawMinigame;
@@ -1766,35 +1774,48 @@
             const walkBtn = document.getElementById('walk-btn');
             walkBtn.disabled = false;
             walkBtn.style.display = 'inline-block';
-            walkBtn.innerText = '🚶 Melintasi Sungai';
-            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk melintasi sungai terlebih dahulu.';
+            walkBtn.innerText = '🚶 Ke Batu Pertama';
+            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk melompati batu pertama di sungai.';
         }
 
         function walkCharacter() {
             if (!minigameState.active) return;
-            
-            const step = minigameState.stepSize * document.getElementById('minigame-canvas').width;
-            minigameState.charX = Math.min(minigameState.charX + step, minigameState.houseX);
-            drawMinigame();
 
-            if (minigameState.phase === 0 && minigameState.charX >= minigameState.riverEnd) {
-                minigameState.phase = 1;
-                const walkBtn = document.getElementById('walk-btn');
-                walkBtn.innerText = '🏠 Menuju Rumah Adat';
-                document.getElementById('minigame-status').textContent = 'Sungai sudah terlewati. Sekarang lanjut ke rumah adat!';
-                return;
+            if (minigameState.phase === 0) {
+                if (minigameState.stoneIndex < minigameState.stones.length) {
+                    const nextStone = minigameState.stones[minigameState.stoneIndex];
+                    minigameState.charX = nextStone.x;
+                    minigameState.charY = nextStone.y;
+                    minigameState.stoneIndex += 1;
+                    drawMinigame();
+
+                    const walkBtn = document.getElementById('walk-btn');
+                    if (minigameState.stoneIndex >= minigameState.stones.length) {
+                        minigameState.phase = 1;
+                        walkBtn.innerText = '🏠 Menuju Rumah Adat';
+                        document.getElementById('minigame-status').textContent = 'Kamu sudah sampai di tepi sungai. Lanjut ke rumah adat!';
+                    } else {
+                        walkBtn.innerText = '🚶 Batu Berikutnya';
+                        document.getElementById('minigame-status').textContent = `Lompatan ke batu ${minigameState.stoneIndex + 1}...`;
+                    }
+                    return;
+                }
             }
 
             if (minigameState.phase === 1) {
+                const step = minigameState.stepSize * document.getElementById('minigame-canvas').width;
+                minigameState.charX = Math.min(minigameState.charX + step, minigameState.houseX - 20);
+                drawMinigame();
+
                 const status = document.getElementById('minigame-status');
-                if (minigameState.charX >= minigameState.houseX - 10) {
+                if (minigameState.charX >= minigameState.houseX - 20) {
                     status.textContent = 'Rumah adat sudah dekat! Siap menjawab pertanyaan...';
                     const walkBtn = document.getElementById('walk-btn');
                     walkBtn.disabled = true;
                     walkBtn.style.display = 'none';
                     setTimeout(() => closeMinigame(), 800);
                 } else {
-                    status.textContent = `Menuju rumah adat: ${Math.round((minigameState.charX - minigameState.riverEnd) / (minigameState.houseX - minigameState.riverEnd) * 100)}%`;    
+                    status.textContent = `Menuju rumah adat: ${Math.round((minigameState.charX - minigameState.riverEnd) / (minigameState.houseX - minigameState.riverEnd) * 100)}%`;
                 }
             }
         }
@@ -1803,74 +1824,42 @@
             const canvas = document.getElementById('minigame-canvas');
             const ctx = canvas.getContext('2d');
 
-            // Latar hijau rumput
             ctx.fillStyle = '#6bbf59';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Trotoar/rumah di kedua sisi
-            ctx.fillStyle = '#a3d48c';
-            ctx.fillRect(0, 0, minigameState.riverStart - 20, canvas.height);
-            ctx.fillRect(minigameState.riverEnd + 20, 0, canvas.width - (minigameState.riverEnd + 20), canvas.height);
+            const bankWidth = minigameState.riverStart - 10;
+            ctx.fillStyle = '#8bc34a';
+            ctx.fillRect(0, 0, bankWidth, canvas.height);
+            ctx.fillRect(minigameState.riverEnd + 10, 0, canvas.width - minigameState.riverEnd - 10, canvas.height);
 
-            // Jalan aspal
-            ctx.fillStyle = '#5f6970';
-            const roadY = canvas.height / 2 - 25;
-            ctx.fillRect(0, roadY, canvas.width, 50);
-            ctx.fillStyle = '#ffffff';
-            ctx.lineWidth = 8;
-            ctx.strokeRect(10, roadY + 5, canvas.width - 20, 40);
-
-            // Garis tengah jalan
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 4;
-            ctx.setLineDash([20, 15]);
-            ctx.beginPath();
-            ctx.moveTo(20, canvas.height / 2);
-            ctx.lineTo(canvas.width - 20, canvas.height / 2);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Sungai
             ctx.fillStyle = '#3da8d6';
-            ctx.fillRect(minigameState.riverStart, canvas.height * 0.22, minigameState.riverEnd - minigameState.riverStart, canvas.height * 0.56);
-            ctx.fillStyle = '#8cd6ff';
+            const riverTop = canvas.height * 0.22;
+            const riverHeight = canvas.height * 0.56;
+            ctx.fillRect(minigameState.riverStart, riverTop, minigameState.riverEnd - minigameState.riverStart, riverHeight);
+
+            ctx.strokeStyle = '#8cd6ff';
             ctx.lineWidth = 3;
-            for (let i = 0; i < 8; i++) {
-                ctx.beginPath();
+            for (let i = 0; i < 10; i++) {
                 const x = minigameState.riverStart + 8 + i * 18;
-                const y = canvas.height * (0.28 + (i % 2) * 0.06);
+                const y = riverTop + (i % 2 === 0 ? 25 : 35);
+                ctx.beginPath();
                 ctx.moveTo(x, y);
-                ctx.quadraticCurveTo(x + 12, y + (i % 2 ? -8 : 8), x + 24, y);
+                ctx.quadraticCurveTo(x + 12, y + (i % 2 ? 12 : -12), x + 24, y);
                 ctx.stroke();
             }
 
-            // Rintangan di sungai
-            const obstacles = [
-                { x: minigameState.riverStart + 35, y: canvas.height * 0.35, type: 'rock' },
-                { x: minigameState.riverStart + 90, y: canvas.height * 0.45, type: 'log' },
-                { x: minigameState.riverStart + 140, y: canvas.height * 0.33, type: 'rock' },
-                { x: minigameState.riverStart + 190, y: canvas.height * 0.5, type: 'log' },
-                { x: minigameState.riverStart + 240, y: canvas.height * 0.38, type: 'rock' }
-            ];
-            obstacles.forEach(obs => {
-                if (obs.type === 'rock') {
-                    ctx.fillStyle = '#7b6d5b';
-                    ctx.beginPath();
-                    ctx.arc(obs.x, obs.y, 10, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#9e8b74';
-                    ctx.beginPath();
-                    ctx.arc(obs.x - 3, obs.y - 4, 4, 0, Math.PI * 2);
-                    ctx.fill();
-                } else {
-                    ctx.fillStyle = '#8b5a2b';
-                    ctx.fillRect(obs.x - 15, obs.y - 6, 30, 12);
-                    ctx.fillStyle = '#b87b45';
-                    ctx.fillRect(obs.x - 13, obs.y - 4, 26, 8);
-                }
+            ctx.fillStyle = '#7b6d5b';
+            minigameState.stones.forEach((stone, index) => {
+                ctx.beginPath();
+                ctx.arc(stone.x, stone.y, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#9e8b74';
+                ctx.beginPath();
+                ctx.arc(stone.x - 3, stone.y - 4, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#7b6d5b';
             });
 
-            // Rumah adat sederhana
             const houseWidth = 80;
             const houseHeight = 50;
             const houseX = minigameState.houseX - houseWidth / 2;
@@ -1890,9 +1879,41 @@
             ctx.fillRect(houseX + 20, houseY + 30, 10, 20);
             ctx.fillRect(houseX + 50, houseY + 30, 10, 20);
 
-            // Teks label
-            ctx.fillStyle = '#fff';
+            if (minigameState.sprite && minigameState.sprite.complete) {
+                const spriteSize = 48;
+                ctx.drawImage(minigameState.sprite, minigameState.charX - spriteSize / 2, minigameState.charY - spriteSize / 2, spriteSize, spriteSize);
+            } else {
+                ctx.font = 'bold 35px Arial';
+                ctx.fillText('🚶', minigameState.charX, minigameState.charY);
+            }
+
+            ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('SUNGAI', minigameState.riverStart + (minigameState.riverEnd - minigameState.riverStart) / 2, riverTop - 10);
+            ctx.fillText('RUMAH ADAT', houseX + houseWidth / 2, houseY - 30);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillRect(10, 10, canvas.width - 20, 22);
+            ctx.fillStyle = '#388e3c';
+            ctx.fillRect(12, 12, (canvas.width - 24) * minigameState.progress, 18);
+            ctx.fillStyle = '#212121';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Kemajuan: ${Math.round(minigameState.progress * 100)}%`, canvas.width / 2, 26);
+        }
+
+        function closeMinigame() {
+            const overlay = document.getElementById('minigame-overlay');
+            overlay.classList.remove('show');
+            minigameState.active = false;
+            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk melintasi sungai terlebih dahulu.';
+            const walkBtn = document.getElementById('walk-btn');
+            walkBtn.disabled = false;
+            walkBtn.style.display = 'inline-block';
+            
+            showQuiz();
+        }
             ctx.textAlign = 'center';
             ctx.fillText('SUNGAI', minigameState.riverStart + (minigameState.riverEnd - minigameState.riverStart) / 2, canvas.height * 0.2);
             ctx.fillText('RUMAH ADAT', houseX + houseWidth / 2, houseY - 30);
