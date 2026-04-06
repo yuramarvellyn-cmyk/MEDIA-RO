@@ -1803,58 +1803,91 @@
             const canvas = document.getElementById('minigame-canvas');
             const ctx = canvas.getContext('2d');
 
-            ctx.fillStyle = '#8bc34a';
+            // Latar hijau rumput
+            ctx.fillStyle = '#6bbf59';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = '#4dd0e1';
-            ctx.fillRect(minigameState.riverStart, canvas.height * 0.3, minigameState.riverEnd - minigameState.riverStart, canvas.height * 0.4);
-            ctx.fillStyle = '#ffffff';
-            ctx.strokeStyle = '#bbdefb';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(minigameState.riverStart + 10, canvas.height * 0.45);
-            ctx.lineTo(minigameState.riverEnd - 10, canvas.height * 0.45);
-            ctx.moveTo(minigameState.riverStart + 10, canvas.height * 0.55);
-            ctx.lineTo(minigameState.riverEnd - 10, canvas.height * 0.55);
-            ctx.stroke();
+            // Trotoar/rumah di kedua sisi
+            ctx.fillStyle = '#a3d48c';
+            ctx.fillRect(0, 0, minigameState.riverStart - 20, canvas.height);
+            ctx.fillRect(minigameState.riverEnd + 20, 0, canvas.width - (minigameState.riverEnd + 20), canvas.height);
 
-            ctx.fillStyle = '#795548';
-            const houseWidth = 70;
+            // Jalan aspal
+            ctx.fillStyle = '#5f6970';
+            const roadY = canvas.height / 2 - 25;
+            ctx.fillRect(0, roadY, canvas.width, 50);
+            ctx.fillStyle = '#ffffff';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(10, roadY + 5, canvas.width - 20, 40);
+
+            // Garis tengah jalan
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([20, 15]);
+            ctx.beginPath();
+            ctx.moveTo(20, canvas.height / 2);
+            ctx.lineTo(canvas.width - 20, canvas.height / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Sungai
+            ctx.fillStyle = '#3da8d6';
+            ctx.fillRect(minigameState.riverStart, canvas.height * 0.22, minigameState.riverEnd - minigameState.riverStart, canvas.height * 0.56);
+            ctx.fillStyle = '#8cd6ff';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 6; i++) {
+                ctx.beginPath();
+                const x = minigameState.riverStart + 10 + i * 20;
+                ctx.moveTo(x, canvas.height * 0.3 + (i % 2) * 10);
+                ctx.lineTo(x + 30, canvas.height * 0.3 + (i % 2) * 10);
+                ctx.stroke();
+            }
+
+            // Rumah adat sederhana
+            const houseWidth = 80;
             const houseHeight = 50;
             const houseX = minigameState.houseX - houseWidth / 2;
-            const houseY = canvas.height / 2 - houseHeight / 2;
-            ctx.fillRect(houseX, houseY + 10, houseWidth, houseHeight);
+            const houseY = canvas.height * 0.3;
+            ctx.fillStyle = '#8d6e63';
+            ctx.fillRect(houseX, houseY + 20, houseWidth, houseHeight);
             ctx.fillStyle = '#d84315';
             ctx.beginPath();
-            ctx.moveTo(houseX, houseY + 10);
+            ctx.moveTo(houseX, houseY + 20);
             ctx.lineTo(houseX + houseWidth / 2, houseY - 20);
-            ctx.lineTo(houseX + houseWidth, houseY + 10);
+            ctx.lineTo(houseX + houseWidth, houseY + 20);
             ctx.closePath();
             ctx.fill();
             ctx.fillStyle = '#fff';
-            ctx.fillRect(houseX + 24, houseY + 26, 20, 20);
-
+            ctx.fillRect(houseX + houseWidth / 2 - 10, houseY + 35, 20, 20);
             ctx.fillStyle = '#6d4c41';
-            ctx.fillRect(0, canvas.height / 2 - 20, canvas.width, 40);
+            ctx.fillRect(houseX + 20, houseY + 30, 10, 20);
+            ctx.fillRect(houseX + 50, houseY + 30, 10, 20);
 
-            ctx.fillStyle = '#ffffff';
+            // Teks label
+            ctx.fillStyle = '#fff';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('SUNGAI', minigameState.riverStart + (minigameState.riverEnd - minigameState.riverStart) / 2, canvas.height * 0.25);
-            ctx.fillText('RUMAH ADAT', minigameState.houseX, houseY - 30);
+            ctx.fillText('SUNGAI', minigameState.riverStart + (minigameState.riverEnd - minigameState.riverStart) / 2, canvas.height * 0.2);
+            ctx.fillText('RUMAH ADAT', houseX + houseWidth / 2, houseY - 30);
 
+            // Gambar karakter sprite
             if (minigameState.sprite && minigameState.sprite.complete) {
-                const spriteSize = 50;
+                const spriteSize = 48;
                 ctx.drawImage(minigameState.sprite, minigameState.charX - spriteSize / 2, minigameState.charY - spriteSize / 2, spriteSize, spriteSize);
             } else {
                 ctx.font = 'bold 35px Arial';
                 ctx.fillText('🚶', minigameState.charX, minigameState.charY);
             }
 
-            ctx.fillStyle = '#333';
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText('Arah: Sungai → Rumah Adat → Soal', 14, 24);
+            // Indikator progres sederhana
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            ctx.fillRect(10, 10, canvas.width - 20, 22);
+            ctx.fillStyle = '#388e3c';
+            ctx.fillRect(12, 12, (canvas.width - 24) * minigameState.progress, 18);
+            ctx.fillStyle = '#212121';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Kemajuan: ${Math.round(minigameState.progress * 100)}%`, canvas.width / 2, 26);
         }
 
         function closeMinigame() {
