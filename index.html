@@ -1168,7 +1168,8 @@
             <div class="minigame-canvas-wrapper">
                 <canvas id="minigame-canvas" width="400" height="300"></canvas>
             </div>
-            <div class="minigame-status" id="minigame-status">Karakter sedang berjalan menuju tujuan...</div>
+            <div class="minigame-status" id="minigame-status">Tekan tombol untuk berjalan menuju tujuan...</div>
+            <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px;">🚶 Berjalan</button>
         </div>
     </div>
 
@@ -1725,8 +1726,7 @@
             targetX: 380,
             targetY: 150,
             progress: 0,
-            duration: 2000, // 2 seconds for character to walk
-            startTime: 0,
+            stepSize: 0.1, // 10% per click
             animationFrame: null
         };
 
@@ -1746,30 +1746,41 @@
             minigameState.targetX = width * 0.9;
             minigameState.targetY = height / 2;
             minigameState.progress = 0;
-            minigameState.startTime = Date.now();
 
             overlay.classList.add('show');
-            animateMinigame();
+            drawMinigame();
+            
+            // Enable walk button
+            const walkBtn = document.getElementById('walk-btn');
+            walkBtn.disabled = false;
+            walkBtn.style.display = 'inline-block';
         }
 
-        function animateMinigame() {
+        function walkCharacter() {
             if (!minigameState.active) return;
-
-            const elapsed = Date.now() - minigameState.startTime;
-            minigameState.progress = Math.min(elapsed / minigameState.duration, 1);
-
-            // Interpolate character position
+            
+            // Increase progress
+            minigameState.progress = Math.min(minigameState.progress + minigameState.stepSize, 1);
+            
+            // Update character position
             minigameState.charX = 20 + (minigameState.targetX - 40) * minigameState.progress;
-
+            
             drawMinigame();
-
-            if (minigameState.progress < 1) {
-                minigameState.animationFrame = requestAnimationFrame(animateMinigame);
-            } else {
-                // Mini-game finished, show the quiz
+            
+            // Update status
+            const status = document.getElementById('minigame-status');
+            if (minigameState.progress >= 1) {
+                status.textContent = 'Tujuan tercapai! Siap untuk tantangan...';
+                const walkBtn = document.getElementById('walk-btn');
+                walkBtn.disabled = true;
+                walkBtn.style.display = 'none';
+                
+                // Auto proceed to quiz after 1 second
                 setTimeout(() => {
                     closeMinigame();
-                }, 500);
+                }, 1000);
+            } else {
+                status.textContent = `Perjalanan: ${Math.round(minigameState.progress * 100)}% - Tekan lagi untuk melanjutkan!`;
             }
         }
 
