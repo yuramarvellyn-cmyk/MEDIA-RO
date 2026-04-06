@@ -1914,29 +1914,6 @@
             
             showQuiz();
         }
-            ctx.textAlign = 'center';
-            ctx.fillText('SUNGAI', minigameState.riverStart + (minigameState.riverEnd - minigameState.riverStart) / 2, canvas.height * 0.2);
-            ctx.fillText('RUMAH ADAT', houseX + houseWidth / 2, houseY - 30);
-
-            // Gambar karakter sprite
-            if (minigameState.sprite && minigameState.sprite.complete) {
-                const spriteSize = 48;
-                ctx.drawImage(minigameState.sprite, minigameState.charX - spriteSize / 2, minigameState.charY - spriteSize / 2, spriteSize, spriteSize);
-            } else {
-                ctx.font = 'bold 35px Arial';
-                ctx.fillText('🚶', minigameState.charX, minigameState.charY);
-            }
-
-            // Indikator progres sederhana
-            ctx.fillStyle = 'rgba(255,255,255,0.85)';
-            ctx.fillRect(10, 10, canvas.width - 20, 22);
-            ctx.fillStyle = '#388e3c';
-            ctx.fillRect(12, 12, (canvas.width - 24) * minigameState.progress, 18);
-            ctx.fillStyle = '#212121';
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`Kemajuan: ${Math.round(minigameState.progress * 100)}%`, canvas.width / 2, 26);
-        }
 
         function closeMinigame() {
             const overlay = document.getElementById('minigame-overlay');
