@@ -1216,6 +1216,14 @@
             penyihir: `<img src="https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/SUMBAR.png" style="width: 100%; height: auto; max-width: 120px; display: block; margin: 0 auto;" alt="SUMBAR"/>`
         };
 
+        const charSpriteUrls = {
+            jawa: 'https://raw.githubusercontent.com/AYAA-lab/Game-Resonance-Odyssey/4d1f20624072c139e13a3200d17f9d7947814b12/JAWA.png',
+            srikandi: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/KALIMANTAN.png',
+            prajurit: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/LAMPUNG.png',
+            penjaga: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/PAPUA.png',
+            penyihir: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/SUMBAR.png'
+        };
+
         const cityData = [
             { name: "Mulai", side: "corner", music: "" },
             { name: "Jawa Barat", side: "side-top", music: "https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/b7a423f967be69ca19239d650b05b841ddcb5158/Manuk%20Dadali%20(Angklung%20version%20cover)%20Arr%20(mp3cut.net).mp3" },
@@ -1746,6 +1754,9 @@
             minigameState.targetX = width * 0.9;
             minigameState.targetY = height / 2;
             minigameState.progress = 0;
+            minigameState.sprite = new Image();
+            minigameState.sprite.src = charSpriteUrls[state.charId] || 'https://raw.githubusercontent.com/AYAA-lab/Game-Resonance-Odyssey/4d1f20624072c139e13a3200d17f9d7947814b12/JAWA.png';
+            minigameState.sprite.onload = drawMinigame;
 
             overlay.classList.add('show');
             drawMinigame();
@@ -1754,6 +1765,7 @@
             const walkBtn = document.getElementById('walk-btn');
             walkBtn.disabled = false;
             walkBtn.style.display = 'inline-block';
+            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk berjalan menuju tujuan...';
         }
 
         function walkCharacter() {
@@ -1807,9 +1819,14 @@
             ctx.textBaseline = 'middle';
             ctx.fillText('🏛️', minigameState.targetX, minigameState.targetY);
 
-            // Draw character
-            ctx.font = 'bold 35px Arial';
-            ctx.fillText('🚶', minigameState.charX, minigameState.charY);
+            // Draw character sprite if loaded, otherwise fallback emoji
+            if (minigameState.sprite && minigameState.sprite.complete) {
+                const spriteSize = 54;
+                ctx.drawImage(minigameState.sprite, minigameState.charX - spriteSize / 2, minigameState.charY - spriteSize / 2, spriteSize, spriteSize);
+            } else {
+                ctx.font = 'bold 35px Arial';
+                ctx.fillText('🚶', minigameState.charX, minigameState.charY);
+            }
 
             // Draw progress text
             ctx.fillStyle = '#333';
