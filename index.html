@@ -472,6 +472,47 @@
             line-height: 1.4;
         }
 
+        /* Mini-Game Overlay */
+        #minigame-overlay {
+            display: none;
+        }
+
+        #minigame-overlay.show {
+            display: flex !important;
+        }
+
+        .minigame-container {
+            background: var(--paper);
+            border: clamp(5px, 1.5vw, 8px) solid var(--wood);
+            border-radius: clamp(12px, 3vw, 20px);
+            padding: clamp(15px, 4vw, 20px);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .minigame-canvas-wrapper {
+            background: linear-gradient(to bottom, #87CEEB, #90EE90);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: clamp(15px, 3vw, 20px) 0;
+            position: relative;
+        }
+
+        #minigame-canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: linear-gradient(to bottom, #87CEEB, #90EE90);
+        }
+
+        .minigame-status {
+            color: #5EB3D6;
+            font-weight: bold;
+            font-size: clamp(12px, 2.5vw, 14px);
+            margin: clamp(10px, 2vw, 15px) 0;
+        }
+
         #quiz-overlay {
             display: none;
         }
@@ -1120,6 +1161,17 @@
         </div>
     </main>
 
+    <!-- MINI-GAME OVERLAY (2D Top-Down) -->
+    <div id="minigame-overlay" class="screen-overlay">
+        <div class="minigame-container">
+            <h2 style="color: #5EB3D6; margin-bottom: clamp(10px, 2vw, 15px);">⚔️ Mini Petualangan</h2>
+            <div class="minigame-canvas-wrapper">
+                <canvas id="minigame-canvas" width="400" height="300"></canvas>
+            </div>
+            <div class="minigame-status" id="minigame-status">Karakter sedang berjalan menuju tujuan...</div>
+        </div>
+    </div>
+
     <!-- AREA PREVIEW OVERLAY -->
     <div id="area-preview-overlay" class="screen-overlay">
         <div class="content-card">
@@ -1665,10 +1717,115 @@
             overlay.classList.add('show');
         }
 
+        // Mini-Game State
+        const minigameState = {
+            active: false,
+            charX: 20,
+            charY: 150,
+            targetX: 380,
+            targetY: 150,
+            progress: 0,
+            duration: 2000, // 2 seconds for character to walk
+            startTime: 0,
+            animationFrame: null
+        };
+
+        function showMinigame() {
+            const canvas = document.getElementById('minigame-canvas');
+            const overlay = document.getElementById('minigame-overlay');
+            
+            // Responsive canvas size
+            const width = Math.min(400, window.innerWidth - 60);
+            const height = Math.min(300, window.innerHeight - 280);
+            canvas.width = width;
+            canvas.height = height;
+
+            minigameState.active = true;
+            minigameState.charX = width * 0.1;
+            minigameState.charY = height / 2;
+            minigameState.targetX = width * 0.9;
+            minigameState.targetY = height / 2;
+            minigameState.progress = 0;
+            minigameState.startTime = Date.now();
+
+            overlay.classList.add('show');
+            animateMinigame();
+        }
+
+        function animateMinigame() {
+            if (!minigameState.active) return;
+
+            const elapsed = Date.now() - minigameState.startTime;
+            minigameState.progress = Math.min(elapsed / minigameState.duration, 1);
+
+            // Interpolate character position
+            minigameState.charX = 20 + (minigameState.targetX - 40) * minigameState.progress;
+
+            drawMinigame();
+
+            if (minigameState.progress < 1) {
+                minigameState.animationFrame = requestAnimationFrame(animateMinigame);
+            } else {
+                // Mini-game finished, show the quiz
+                setTimeout(() => {
+                    closeMinigame();
+                }, 500);
+            }
+        }
+
+        function drawMinigame() {
+            const canvas = document.getElementById('minigame-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Clear canvas
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grass at bottom
+            ctx.fillStyle = '#90EE90';
+            ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
+
+            // Draw path
+            ctx.fillStyle = '#DAA520';
+            ctx.fillRect(0, canvas.height / 2 - 20, canvas.width, 40);
+
+            // Draw destination (target)
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 40px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏛️', minigameState.targetX, minigameState.targetY);
+
+            // Draw character
+            ctx.font = 'bold 35px Arial';
+            ctx.fillText('🚶', minigameState.charX, minigameState.charY);
+
+            // Draw progress text
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Perjalanan: ${Math.round(minigameState.progress * 100)}%`, canvas.width / 2, 30);
+        }
+
+        function closeMinigame() {
+            const overlay = document.getElementById('minigame-overlay');
+            overlay.classList.remove('show');
+            minigameState.active = false;
+            
+            if (minigameState.animationFrame) {
+                cancelAnimationFrame(minigameState.animationFrame);
+            }
+
+            // Show quiz after mini-game
+            showQuiz();
+        }
+
         function closeAreaPreview() {
             const overlay = document.getElementById('area-preview-overlay');
             overlay.classList.remove('show');
-            showQuiz();
+            
+            // Show mini-game first, then quiz
+            showMinigame();
         }
 
         function updateControlButtons() {
