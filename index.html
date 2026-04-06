@@ -1835,13 +1835,40 @@
             ctx.fillRect(minigameState.riverStart, canvas.height * 0.22, minigameState.riverEnd - minigameState.riverStart, canvas.height * 0.56);
             ctx.fillStyle = '#8cd6ff';
             ctx.lineWidth = 3;
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < 8; i++) {
                 ctx.beginPath();
-                const x = minigameState.riverStart + 10 + i * 20;
-                ctx.moveTo(x, canvas.height * 0.3 + (i % 2) * 10);
-                ctx.lineTo(x + 30, canvas.height * 0.3 + (i % 2) * 10);
+                const x = minigameState.riverStart + 8 + i * 18;
+                const y = canvas.height * (0.28 + (i % 2) * 0.06);
+                ctx.moveTo(x, y);
+                ctx.quadraticCurveTo(x + 12, y + (i % 2 ? -8 : 8), x + 24, y);
                 ctx.stroke();
             }
+
+            // Rintangan di sungai
+            const obstacles = [
+                { x: minigameState.riverStart + 35, y: canvas.height * 0.35, type: 'rock' },
+                { x: minigameState.riverStart + 90, y: canvas.height * 0.45, type: 'log' },
+                { x: minigameState.riverStart + 140, y: canvas.height * 0.33, type: 'rock' },
+                { x: minigameState.riverStart + 190, y: canvas.height * 0.5, type: 'log' },
+                { x: minigameState.riverStart + 240, y: canvas.height * 0.38, type: 'rock' }
+            ];
+            obstacles.forEach(obs => {
+                if (obs.type === 'rock') {
+                    ctx.fillStyle = '#7b6d5b';
+                    ctx.beginPath();
+                    ctx.arc(obs.x, obs.y, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#9e8b74';
+                    ctx.beginPath();
+                    ctx.arc(obs.x - 3, obs.y - 4, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = '#8b5a2b';
+                    ctx.fillRect(obs.x - 15, obs.y - 6, 30, 12);
+                    ctx.fillStyle = '#b87b45';
+                    ctx.fillRect(obs.x - 13, obs.y - 4, 26, 8);
+                }
+            });
 
             // Rumah adat sederhana
             const houseWidth = 80;
