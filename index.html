@@ -1168,8 +1168,8 @@
             <div class="minigame-canvas-wrapper">
                 <canvas id="minigame-canvas" width="400" height="300"></canvas>
             </div>
-            <div class="minigame-status" id="minigame-status">Tekan tombol untuk berjalan menuju tujuan...</div>
-            <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px;">🚶 Berjalan</button>
+            <div class="minigame-status" id="minigame-status">Tekan tombol untuk melintasi sungai pertama.</div>
+            <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px;">🚶 Melintasi Sungai</button>
         </div>
     </div>
 
@@ -1749,11 +1749,13 @@
             canvas.height = height;
 
             minigameState.active = true;
-            minigameState.charX = width * 0.1;
+            minigameState.charX = width * 0.12;
             minigameState.charY = height / 2;
-            minigameState.targetX = width * 0.9;
-            minigameState.targetY = height / 2;
+            minigameState.riverStart = width * 0.42;
+            minigameState.riverEnd = width * 0.55;
+            minigameState.houseX = width * 0.88;
             minigameState.progress = 0;
+            minigameState.phase = 0;
             minigameState.sprite = new Image();
             minigameState.sprite.src = charSpriteUrls[state.charId] || 'https://raw.githubusercontent.com/AYAA-lab/Game-Resonance-Odyssey/4d1f20624072c139e13a3200d17f9d7947814b12/JAWA.png';
             minigameState.sprite.onload = drawMinigame;
@@ -1761,38 +1763,39 @@
             overlay.classList.add('show');
             drawMinigame();
             
-            // Enable walk button
             const walkBtn = document.getElementById('walk-btn');
             walkBtn.disabled = false;
             walkBtn.style.display = 'inline-block';
-            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk berjalan menuju tujuan...';
+            walkBtn.innerText = '🚶 Melintasi Sungai';
+            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk melintasi sungai terlebih dahulu.';
         }
 
         function walkCharacter() {
             if (!minigameState.active) return;
             
-            // Increase progress
-            minigameState.progress = Math.min(minigameState.progress + minigameState.stepSize, 1);
-            
-            // Update character position
-            minigameState.charX = 20 + (minigameState.targetX - 40) * minigameState.progress;
-            
+            const step = minigameState.stepSize * document.getElementById('minigame-canvas').width;
+            minigameState.charX = Math.min(minigameState.charX + step, minigameState.houseX);
             drawMinigame();
-            
-            // Update status
-            const status = document.getElementById('minigame-status');
-            if (minigameState.progress >= 1) {
-                status.textContent = 'Tujuan tercapai! Siap untuk tantangan...';
+
+            if (minigameState.phase === 0 && minigameState.charX >= minigameState.riverEnd) {
+                minigameState.phase = 1;
                 const walkBtn = document.getElementById('walk-btn');
-                walkBtn.disabled = true;
-                walkBtn.style.display = 'none';
-                
-                // Auto proceed to quiz after 1 second
-                setTimeout(() => {
-                    closeMinigame();
-                }, 1000);
-            } else {
-                status.textContent = `Perjalanan: ${Math.round(minigameState.progress * 100)}% - Tekan lagi untuk melanjutkan!`;
+                walkBtn.innerText = '🏠 Menuju Rumah Adat';
+                document.getElementById('minigame-status').textContent = 'Sungai sudah terlewati. Sekarang lanjut ke rumah adat!';
+                return;
+            }
+
+            if (minigameState.phase === 1) {
+                const status = document.getElementById('minigame-status');
+                if (minigameState.charX >= minigameState.houseX - 10) {
+                    status.textContent = 'Rumah adat sudah dekat! Siap menjawab pertanyaan...';
+                    const walkBtn = document.getElementById('walk-btn');
+                    walkBtn.disabled = true;
+                    walkBtn.style.display = 'none';
+                    setTimeout(() => closeMinigame(), 800);
+                } else {
+                    status.textContent = `Menuju rumah adat: ${Math.round((minigameState.charX - minigameState.riverEnd) / (minigameState.houseX - minigameState.riverEnd) * 100)}%`;    
+                }
             }
         }
 
@@ -1800,51 +1803,69 @@
             const canvas = document.getElementById('minigame-canvas');
             const ctx = canvas.getContext('2d');
 
-            // Clear canvas
-            ctx.fillStyle = '#87CEEB';
+            ctx.fillStyle = '#8bc34a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw grass at bottom
-            ctx.fillStyle = '#90EE90';
-            ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
+            ctx.fillStyle = '#4dd0e1';
+            ctx.fillRect(minigameState.riverStart, canvas.height * 0.3, minigameState.riverEnd - minigameState.riverStart, canvas.height * 0.4);
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#bbdefb';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(minigameState.riverStart + 10, canvas.height * 0.45);
+            ctx.lineTo(minigameState.riverEnd - 10, canvas.height * 0.45);
+            ctx.moveTo(minigameState.riverStart + 10, canvas.height * 0.55);
+            ctx.lineTo(minigameState.riverEnd - 10, canvas.height * 0.55);
+            ctx.stroke();
 
-            // Draw path
-            ctx.fillStyle = '#DAA520';
+            ctx.fillStyle = '#795548';
+            const houseWidth = 70;
+            const houseHeight = 50;
+            const houseX = minigameState.houseX - houseWidth / 2;
+            const houseY = canvas.height / 2 - houseHeight / 2;
+            ctx.fillRect(houseX, houseY + 10, houseWidth, houseHeight);
+            ctx.fillStyle = '#d84315';
+            ctx.beginPath();
+            ctx.moveTo(houseX, houseY + 10);
+            ctx.lineTo(houseX + houseWidth / 2, houseY - 20);
+            ctx.lineTo(houseX + houseWidth, houseY + 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(houseX + 24, houseY + 26, 20, 20);
+
+            ctx.fillStyle = '#6d4c41';
             ctx.fillRect(0, canvas.height / 2 - 20, canvas.width, 40);
 
-            // Draw destination (target)
-            ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 40px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('🏛️', minigameState.targetX, minigameState.targetY);
+            ctx.fillText('SUNGAI', minigameState.riverStart + (minigameState.riverEnd - minigameState.riverStart) / 2, canvas.height * 0.25);
+            ctx.fillText('RUMAH ADAT', minigameState.houseX, houseY - 30);
 
-            // Draw character sprite if loaded, otherwise fallback emoji
             if (minigameState.sprite && minigameState.sprite.complete) {
-                const spriteSize = 54;
+                const spriteSize = 50;
                 ctx.drawImage(minigameState.sprite, minigameState.charX - spriteSize / 2, minigameState.charY - spriteSize / 2, spriteSize, spriteSize);
             } else {
                 ctx.font = 'bold 35px Arial';
                 ctx.fillText('🚶', minigameState.charX, minigameState.charY);
             }
 
-            // Draw progress text
             ctx.fillStyle = '#333';
             ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`Perjalanan: ${Math.round(minigameState.progress * 100)}%`, canvas.width / 2, 30);
+            ctx.textAlign = 'left';
+            ctx.fillText('Arah: Sungai → Rumah Adat → Soal', 14, 24);
         }
 
         function closeMinigame() {
             const overlay = document.getElementById('minigame-overlay');
             overlay.classList.remove('show');
             minigameState.active = false;
+            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk melintasi sungai terlebih dahulu.';
+            const walkBtn = document.getElementById('walk-btn');
+            walkBtn.disabled = false;
+            walkBtn.style.display = 'inline-block';
             
-            if (minigameState.animationFrame) {
-                cancelAnimationFrame(minigameState.animationFrame);
-            }
-
-            // Show quiz after mini-game
             showQuiz();
         }
 
