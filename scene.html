@@ -1,186 +1,369 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scene Petualangan - Resonance Odyssey</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            padding: 0;
-            background: #87CEEB;
+            min-height: 100vh;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            background: radial-gradient(circle at top center, #c9f3ff 0%, #9fdaf7 35%, #7cccd8 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         canvas {
             display: block;
-            margin: 0 auto;
+            width: 100vw;
+            height: 100vh;
         }
-        #info {
+
+        #scene-label {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-size: 14px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px;
-            border-radius: 5px;
+            left: 20px;
+            top: 20px;
+            color: #fff;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+            font-size: clamp(14px, 2vw, 18px);
+            z-index: 10;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <div id="info">Scene Petualangan Semi-Realistis 2.5D</div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-
+    <div id="scene-label">Petualangan Nusantara - Scene Kartun</div>
+    <canvas id="gameCanvas"></canvas>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-
-        // Variabel untuk animasi
         let time = 0;
-        let waveOffset = 0;
 
-        // Fungsi untuk menggambar scene
+        function resizeCanvas() {
+            const ratio = window.devicePixelRatio || 1;
+            canvas.width = window.innerWidth * ratio;
+            canvas.height = window.innerHeight * ratio;
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
+            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        }
+
         function drawScene() {
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const w = canvas.width / (window.devicePixelRatio || 1);
+            const h = canvas.height / (window.devicePixelRatio || 1);
 
-            // Background gradient (langit)
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#87CEEB');
-            gradient.addColorStop(1, '#98FB98');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, w, h);
 
-            // Transformasi isometrik
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.scale(0.8, 0.4);
-            ctx.rotate(-Math.PI / 6);
+            drawSky(w, h);
+            drawSun(w, h);
+            drawHills(w, h);
+            const river = drawRiver(w, h);
+            drawStones(river);
+            drawHouse(w, h);
+            drawChibi(w, h);
+            drawGlowDetails(w, h);
 
-            // Gambar rumput (ground)
-            ctx.fillStyle = '#228B22';
-            ctx.fillRect(-400, 100, 800, 200);
-
-            // Variasi warna rumput
-            for (let i = 0; i < 50; i++) {
-                const x = Math.random() * 800 - 400;
-                const y = 100 + Math.random() * 200;
-                ctx.fillStyle = Math.random() > 0.5 ? '#32CD32' : '#006400';
-                ctx.fillRect(x, y, 10, 10);
-            }
-
-            // Gambar sungai
-            ctx.fillStyle = '#4169E1';
-            ctx.fillRect(-200, 150, 400, 100);
-
-            // Gelombang air
-            ctx.strokeStyle = '#4682B4';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < 10; i++) {
-                ctx.beginPath();
-                ctx.moveTo(-200 + i * 40, 150 + Math.sin(time * 0.01 + i) * 5);
-                ctx.lineTo(-160 + i * 40, 150 + Math.sin(time * 0.01 + i + 1) * 5);
-                ctx.stroke();
-            }
-
-            // Refleksi cahaya
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            for (let i = 0; i < 5; i++) {
-                ctx.beginPath();
-                ctx.ellipse(-150 + i * 80, 180, 20, 5, 0, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Batu sungai terendam
-            ctx.fillStyle = '#696969';
-            ctx.beginPath();
-            ctx.ellipse(-100, 220, 30, 15, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.ellipse(50, 210, 25, 12, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.ellipse(120, 230, 35, 18, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Tekstur batu
-            ctx.strokeStyle = '#2F4F4F';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.ellipse(-100, 220, 30, 15, 0, 0, Math.PI * 2);
-            ctx.stroke();
-
-            // Rumah adat
-            // Dinding
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(200, 50, 80, 60);
-
-            // Atap
-            ctx.fillStyle = '#654321';
-            ctx.beginPath();
-            ctx.moveTo(190, 50);
-            ctx.lineTo(240, 20);
-            ctx.lineTo(290, 50);
-            ctx.closePath();
-            ctx.fill();
-
-            // Detail atap
-            ctx.strokeStyle = '#2F1B14';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(190, 50);
-            ctx.lineTo(240, 20);
-            ctx.lineTo(290, 50);
-            ctx.stroke();
-
-            // Pintu
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(230, 80, 20, 30);
-
-            // Jendela
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillRect(210, 70, 15, 15);
-
-            // Karakter manusia
-            ctx.fillStyle = '#FFDBAC';
-            ctx.beginPath();
-            ctx.ellipse(250, 120, 8, 12, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Badan
-            ctx.fillStyle = '#4169E1';
-            ctx.fillRect(245, 132, 10, 15);
-
-            // Kaki
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(247, 147, 3, 8);
-            ctx.fillRect(252, 147, 3, 8);
-
-            // Lengan
-            ctx.fillStyle = '#FFDBAC';
-            ctx.fillRect(240, 135, 5, 10);
-            ctx.fillRect(257, 135, 5, 10);
-
-            // Bayangan
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.beginPath();
-            ctx.ellipse(250, 160, 15, 5, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.restore();
-
-            // Pencahayaan ambient (overlay)
-            ctx.fillStyle = 'rgba(255, 218, 185, 0.3)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            time++;
+            time += 1;
             requestAnimationFrame(drawScene);
         }
 
-        // Mulai animasi
+        function drawSky(w, h) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, '#a6e7ff');
+            gradient.addColorStop(0.55, '#c9f8ff');
+            gradient.addColorStop(1, '#eaf9e7');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, w, h);
+        }
+
+        function drawSun(w, h) {
+            const x = w * 0.82;
+            const y = h * 0.18;
+            const radius = Math.min(w, h) * 0.09;
+            const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            glow.addColorStop(0, 'rgba(255, 242, 174, 0.95)');
+            glow.addColorStop(0.45, 'rgba(255, 222, 137, 0.65)');
+            glow.addColorStop(1, 'rgba(255, 222, 137, 0)');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 1.25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff1a8';
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 0.55, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawHills(w, h) {
+            const hills = [
+                { cx: w * 0.15, cy: h * 0.76, rw: w * 0.55, rh: h * 0.22, color1: '#8ce681', color2: '#58bd68' },
+                { cx: w * 0.52, cy: h * 0.82, rw: w * 0.82, rh: h * 0.20, color1: '#b8f7b7', color2: '#76cf7d' },
+                { cx: w * 0.78, cy: h * 0.75, rw: w * 0.45, rh: h * 0.18, color1: '#c8f2bc', color2: '#7bcb72' }
+            ];
+            hills.forEach(hill => {
+                const gradient = ctx.createLinearGradient(hill.cx - hill.rw / 2, hill.cy - hill.rh, hill.cx + hill.rw / 2, hill.cy + hill.rh);
+                gradient.addColorStop(0, hill.color1);
+                gradient.addColorStop(1, hill.color2);
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.moveTo(hill.cx - hill.rw / 2, hill.cy);
+                ctx.quadraticCurveTo(hill.cx, hill.cy - hill.rh, hill.cx + hill.rw / 2, hill.cy);
+                ctx.lineTo(hill.cx + hill.rw / 2, h);
+                ctx.lineTo(hill.cx - hill.rw / 2, h);
+                ctx.closePath();
+                ctx.fill();
+            });
+        }
+
+        function drawRiver(w, h) {
+            const left = w * 0.15;
+            const right = w * 0.62;
+            const top = h * 0.46;
+            const bottom = h * 0.88;
+            const path = [];
+            const segments = 7;
+
+            for (let i = 0; i <= segments; i += 1) {
+                const t = i / segments;
+                const x = left + (right - left) * t + Math.sin(time * 0.01 + t * 2.5) * 12;
+                const y = top + (bottom - top) * t;
+                path.push({ x, y });
+            }
+
+            const gradient = ctx.createLinearGradient(left, top, right, bottom);
+            gradient.addColorStop(0, '#8ed4ff');
+            gradient.addColorStop(0.5, '#67c0ff');
+            gradient.addColorStop(1, '#b5efff');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(path[0].x - 42, path[0].y - 14);
+            for (let i = 1; i < path.length; i += 1) {
+                const x = path[i].x - 42 + Math.sin(time * 0.01 + i * 0.7) * 4;
+                const y = path[i].y;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(path[path.length - 1].x + 42, path[path.length - 1].y + 16);
+            for (let i = path.length - 1; i >= 0; i -= 1) {
+                const x = path[i].x + 42 + Math.sin(time * 0.01 + i * 0.7 + 2) * 4;
+                const y = path[i].y + 8;
+                ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            for (let j = 0; j < 5; j += 1) {
+                ctx.beginPath();
+                const offsetY = j * 24 + Math.sin(time * 0.04 + j) * 9;
+                ctx.moveTo(left + 20 + j * 25, top + offsetY);
+                for (let k = 0; k < 5; k += 1) {
+                    const cx = left + 20 + j * 25 + k * 35;
+                    const cy = top + offsetY + Math.sin((k + j) * 0.6 + time * 0.05) * 8;
+                    ctx.quadraticCurveTo(cx + 16, cy + 10, cx + 30, top + offsetY);
+                }
+                ctx.stroke();
+            }
+
+            return { left, top, right, bottom };
+        }
+
+        function drawStones(river) {
+            const stones = [
+                { x: river.left + 90, y: river.top + 42, r: 26 },
+                { x: river.left + 175, y: river.top + 98, r: 28 },
+                { x: river.left + 255, y: river.top + 72, r: 24 },
+                { x: river.left + 335, y: river.top + 124, r: 30 }
+            ];
+            stones.forEach((stone, index) => {
+                ctx.save();
+                const gradient = ctx.createRadialGradient(stone.x - stone.r * 0.3, stone.y - stone.r * 0.4, 4, stone.x, stone.y, stone.r);
+                gradient.addColorStop(0, '#ffe7bf');
+                gradient.addColorStop(1, '#c9985d');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.ellipse(stone.x, stone.y, stone.r, stone.r * 0.65, Math.sin(time * 0.01 + index) * 0.08, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(255,255,255,0.55)';
+                ctx.beginPath();
+                ctx.ellipse(stone.x - stone.r * 0.22, stone.y - stone.r * 0.18, stone.r * 0.28, stone.r * 0.12, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(0,0,0,0.12)';
+                ctx.beginPath();
+                ctx.ellipse(stone.x + stone.r * 0.18, stone.y + stone.r * 0.2, stone.r * 0.22, stone.r * 0.08, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        function drawHouse(w, h) {
+            const houseWidth = Math.min(w * 0.22, 220);
+            const houseHeight = houseWidth * 0.92;
+            const houseX = w * 0.82;
+            const houseY = h * 0.60;
+            const bodyX = houseX - houseWidth / 2;
+            const bodyY = houseY - houseHeight;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(109, 61, 17, 0.18)';
+            ctx.beginPath();
+            ctx.ellipse(houseX, houseY + 16, houseWidth * 0.45, 14, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            ctx.fillStyle = '#ffd19b';
+            ctx.strokeStyle = '#c28356';
+            ctx.lineWidth = 4;
+            roundRect(ctx, bodyX, bodyY, houseWidth, houseHeight * 0.58, 26, true, true);
+
+            ctx.fillStyle = '#eb7d51';
+            ctx.beginPath();
+            ctx.moveTo(bodyX - 12, bodyY + 18);
+            ctx.quadraticCurveTo(houseX, bodyY - houseHeight * 0.22, bodyX + houseWidth + 12, bodyY + 18);
+            ctx.lineTo(bodyX + houseWidth + 12, bodyY + 44);
+            ctx.lineTo(bodyX - 12, bodyY + 44);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#e7a37b';
+            ctx.beginPath();
+            ctx.roundRect(houseX - 28, houseY - houseHeight * 0.25, 56, 80, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff6e0';
+            ctx.fillRect(houseX + 32, houseY - houseHeight * 0.33, 38, 38);
+            ctx.strokeRect(houseX + 32, houseY - houseHeight * 0.33, 38, 38);
+            ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(houseX + 32, houseY - houseHeight * 0.33 + 19);
+            ctx.lineTo(houseX + 70, houseY - houseHeight * 0.33 + 19);
+            ctx.moveTo(houseX + 51, houseY - houseHeight * 0.33 + 2);
+            ctx.lineTo(houseX + 51, houseY - houseHeight * 0.33 + 36);
+            ctx.stroke();
+        }
+
+        function drawChibi(w, h) {
+            const scale = Math.min(w, h) / 1200;
+            const x = w * 0.74;
+            const y = h * 0.80;
+            const headR = 36 * scale;
+            const bodyW = 42 * scale;
+            const bodyH = 58 * scale;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+            ctx.beginPath();
+            ctx.ellipse(x, y + bodyH * 0.6, bodyW * 0.85, 10 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#f9d3b2';
+            ctx.strokeStyle = '#ce9a72';
+            ctx.lineWidth = 3 * scale;
+            ctx.beginPath();
+            ctx.roundRect(x - bodyW / 2, y + headR * 0.38, bodyW, bodyH, 20 * scale);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffe6ce';
+            ctx.beginPath();
+            ctx.arc(x, y, headR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(255, 120, 110, 0.35)';
+            ctx.beginPath();
+            ctx.arc(x - 13 * scale, y + 5 * scale, 8 * scale, 0, Math.PI * 2);
+            ctx.arc(x + 13 * scale, y + 5 * scale, 8 * scale, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#3c2c24';
+            ctx.beginPath();
+            ctx.arc(x - 10 * scale, y - 2 * scale, 7 * scale, 0, Math.PI * 2);
+            ctx.arc(x + 12 * scale, y - 2 * scale, 7 * scale, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(x - 8 * scale, y - 6 * scale, 2.5 * scale, 0, Math.PI * 2);
+            ctx.arc(x + 14 * scale, y - 6 * scale, 2.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#8b5a2f';
+            ctx.lineWidth = 4 * scale;
+            ctx.beginPath();
+            ctx.arc(x, y + 13 * scale, 8 * scale, 0, Math.PI, false);
+            ctx.stroke();
+
+            ctx.fillStyle = '#a15f30';
+            ctx.beginPath();
+            ctx.moveTo(x - headR + 10 * scale, y - 6 * scale);
+            ctx.quadraticCurveTo(x, y - headR * 1.05, x + headR - 10 * scale, y - 6 * scale);
+            ctx.lineTo(x + headR - 10 * scale, y + 8 * scale);
+            ctx.quadraticCurveTo(x, y + 4 * scale, x - headR + 10 * scale, y + 8 * scale);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#f9d3b2';
+            ctx.beginPath();
+            ctx.roundRect(x - bodyW / 2 - 8 * scale, y + headR * 0.5, 16 * scale, 32 * scale, 10 * scale);
+            ctx.roundRect(x + bodyW / 2 - 8 * scale, y + headR * 0.5, 16 * scale, 32 * scale, 10 * scale);
+            ctx.fill();
+
+            ctx.fillStyle = '#f77d8c';
+            ctx.beginPath();
+            ctx.roundRect(x - bodyW * 0.4, y + headR + bodyH * 0.44, 16 * scale, 12 * scale, 8 * scale);
+            ctx.roundRect(x + bodyW * 0.2, y + headR + bodyH * 0.44, 16 * scale, 12 * scale, 8 * scale);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawGlowDetails(w, h) {
+            for (let i = 0; i < 16; i += 1) {
+                const x = Math.random() * w * 0.7 + w * 0.18;
+                const y = Math.random() * h * 0.35 + h * 0.45;
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.08 + 0.12 * Math.sin(time * 0.03 + i)})`;
+                ctx.beginPath();
+                ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+            if (typeof radius === 'number') {
+                radius = { tl: radius, tr: radius, br: radius, bl: radius };
+            } else {
+                const defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+                for (const side in defaultRadius) {
+                    radius[side] = radius[side] || defaultRadius[side];
+                }
+            }
+            ctx.beginPath();
+            ctx.moveTo(x + radius.tl, y);
+            ctx.lineTo(x + width - radius.tr, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+            ctx.lineTo(x + width, y + height - radius.br);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+            ctx.lineTo(x + radius.bl, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+            ctx.lineTo(x, y + radius.tl);
+            ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+            ctx.closePath();
+            if (fill) ctx.fill();
+            if (stroke) ctx.stroke();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
         drawScene();
     </script>
 </body>
