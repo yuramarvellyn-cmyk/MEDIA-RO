@@ -1085,6 +1085,386 @@
                 font-size: clamp(11px, 2.8vw, 15px);
             }
         }
+
+        /* Mini-Game Styles */
+        .minigame-walking {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB, #90EE90);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .minigame-bg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .cloud {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.5;
+        }
+
+        .cloud1 { top: 10%; left: 10%; }
+        .cloud2 { top: 20%; left: 40%; }
+        .cloud3 { top: 15%; left: 70%; }
+
+        .tree {
+            position: absolute;
+            bottom: 30%;
+            font-size: 2.5rem;
+        }
+
+        .tree1 { left: 20%; }
+        .tree2 { left: 50%; }
+        .tree3 { left: 85%; font-size: 3rem; }
+
+        .travel-path {
+            position: relative;
+            width: 100%;
+            height: 40%;
+            background: #cbd5e1;
+            display: flex;
+            align-items: center;
+            border-top: 8px solid #64748b;
+            border-bottom: 8px solid #64748b;
+        }
+
+        .path-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            border-top: 4px dashed #fff;
+            opacity: 0.5;
+        }
+
+        .house {
+            position: absolute;
+            right: 5%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .house-icon {
+            font-size: 4rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            margin-bottom: 0.5rem;
+        }
+
+        .house-label {
+            background: #fff;
+            padding: 0.25rem 1rem;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 900;
+            border: 2px solid #1e293b;
+            box-shadow: 0 0 0 2px #fff;
+        }
+
+        .character {
+            position: absolute;
+            transition: left 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .character-label {
+            background: #fff;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 8px;
+            font-weight: 900;
+            border: 1px solid #000;
+            margin-bottom: 0.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            white-space: nowrap;
+        }
+
+        .character-icon {
+            font-size: 3rem;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));
+        }
+
+        .character.arrived .character-icon {
+            animation: pulse 1s infinite;
+        }
+
+        .minigame-controls {
+            position: absolute;
+            bottom: 12%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .move-btn {
+            background: #3B82F6;
+            color: #fff;
+            font-weight: 900;
+            padding: 1.5rem 3rem;
+            border-radius: 2rem;
+            font-size: 2rem;
+            border-bottom: 8px solid #1D4ED8;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .move-btn:hover {
+            background: #2563EB;
+        }
+
+        .move-btn:active {
+            border-bottom: 0;
+            transform: translateY(2px);
+        }
+
+        .move-icon {
+            transition: transform 0.2s;
+        }
+
+        .move-btn:active .move-icon {
+            transform: translateX(4px);
+        }
+
+        .arrived-msg {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            animation: bounce 1s infinite;
+        }
+
+        .arrived-msg p {
+            color: #1e293b;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: #FEF08A;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            border: 4px solid #1e293b;
+        }
+
+        .enter-btn {
+            background: #10B981;
+            color: #fff;
+            font-weight: 900;
+            padding: 1.5rem 3rem;
+            border-radius: 2rem;
+            font-size: 2rem;
+            border-bottom: 8px solid #059669;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .enter-btn:hover {
+            background: #059669;
+        }
+
+        .enter-btn:active {
+            border-bottom: 0;
+            transform: translateY(2px);
+        }
+
+        .progress-info {
+            position: absolute;
+            top: 6%;
+            background: #fff;
+            padding: 0.75rem 2rem;
+            border-radius: 2rem;
+            border: 4px solid #1e293b;
+            font-weight: 900;
+            color: #1e293b;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .minigame-challenge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #3B82F6;
+            padding: 1.5rem;
+        }
+
+        .challenge-card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 3.75rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 28rem;
+            border-bottom: 8px solid #1D4ED8;
+            text-align: center;
+            position: relative;
+        }
+
+        .challenge-header {
+            position: absolute;
+            top: -1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FEF08A;
+            border: 4px solid #1e293b;
+            padding: 0.25rem 2rem;
+            border-radius: 50%;
+            font-weight: 900;
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .instrument-icon {
+            font-size: 4.375rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .challenge-question {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #1F2937;
+            margin-bottom: 1.875rem;
+            line-height: 1.3;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 1rem 0.9375rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            background: #E6F7FF;
+            border: 2px solid #7EC8E3;
+            color: #1F2937;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .option-btn:hover {
+            border-color: #FFB6D9;
+            background: #FFF0F7;
+        }
+
+        .minigame-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .result-card {
+            background: #fff;
+            padding: 3rem;
+            border-radius: 3.75rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            max-width: 28rem;
+            width: 100%;
+            border-bottom: 8px solid #000;
+        }
+
+        .result-icon {
+            font-size: 6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-title {
+            font-size: 2.25rem;
+            font-weight: 900;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-style: italic;
+            letter-spacing: -0.025em;
+        }
+
+        .result-message {
+            font-weight: 700;
+            color: #10B981;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.875rem;
+        }
+
+        .fact-box {
+            background: #F3F4F6;
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            margin-bottom: 2rem;
+            border: 2px solid #D1D5DB;
+        }
+
+        .fact-box p {
+            color: #374151;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .retry-btn {
+            width: 100%;
+            background: #374151;
+            color: #fff;
+            font-weight: 900;
+            padding: 1.25rem;
+            border-radius: 1.5rem;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: -0.025em;
+        }
+
+        .retry-btn:hover {
+            background: #1F2937;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
     </style>
 </head>
 <body>
@@ -1162,15 +1542,70 @@
     </main>
 
     <!-- MINI-GAME OVERLAY -->
-    <div id="minigame-overlay" class="screen-overlay">
-        <div class="minigame-container">
-            <h2 style="color: #5EB3D6; margin-bottom: clamp(10px, 2vw, 15px);">⚔️ Petualangan Singkat</h2>
-            <div class="minigame-canvas-wrapper">
-                <canvas id="minigame-canvas" width="400" height="300"></canvas>
+    <div id="minigame-overlay" class="screen-overlay hidden">
+        <div id="minigame-walking" class="minigame-walking">
+            <!-- Background Alam -->
+            <div class="minigame-bg">
+                <div class="cloud cloud1">☁️</div>
+                <div class="cloud cloud2">☁️</div>
+                <div class="cloud cloud3">☁️</div>
+                <div class="tree tree1">🌳</div>
+                <div class="tree tree2">🌳</div>
+                <div class="palm tree3">🌴</div>
             </div>
-            <div class="minigame-status" id="minigame-status">Tekan tombol untuk memulai petualangan!</div>
-            <button class="btn-gold" id="start-adventure-btn" onclick="startAdventure()" style="margin-top: 15px; display:none;">🚀 Mulai Petualangan</button>
-            <button class="btn-gold" id="quiz-btn" onclick="proceedToQuiz()" style="margin-top: 10px; display:none;">➡️ Lanjut ke Soal</button>
+
+            <!-- Jalur Perjalanan -->
+            <div class="travel-path">
+                <div class="path-line"></div>
+                <div class="house">
+                    <div class="house-icon">🏠</div>
+                    <div class="house-label">SAUNG MUSIK</div>
+                </div>
+                <div id="character" class="character">
+                    <div class="character-label">PETUALANG</div>
+                    <div class="character-icon">🏃‍♂️</div>
+                </div>
+            </div>
+
+            <!-- Kontrol -->
+            <div class="minigame-controls">
+                <button id="move-btn" class="move-btn" onclick="moveForward()">JALAN <span class="move-icon">➡️</span></button>
+                <div id="arrived-msg" class="arrived-msg hidden">
+                    <p>SUDAH SAMPAI!</p>
+                    <button id="enter-house-btn" class="enter-btn" onclick="enterHouse()">MASUK SAUNG <span class="home-icon">🏠</span></button>
+                </div>
+            </div>
+
+            <!-- Progress Info -->
+            <div class="progress-info">
+                PERJALANAN: <span id="progress-text">0%</span>
+            </div>
+        </div>
+
+        <div id="minigame-challenge" class="minigame-challenge hidden">
+            <div class="challenge-card">
+                <div class="challenge-header">TANTANGAN NUSA TENGGARA TIMUR</div>
+                <div class="instrument-icon">🎸</div>
+                <h3 class="challenge-question">Alat musik tradisional dari NTT yang dimainkan dengan cara dipetik dan memiliki wadah dari daun lontar adalah...</h3>
+                <div class="options-grid">
+                    <button class="option-btn" onclick="handleAnswer('Angklung')">Angklung</button>
+                    <button class="option-btn" onclick="handleAnswer('Sasando')">Sasando</button>
+                    <button class="option-btn" onclick="handleAnswer('Tifa')">Tifa</button>
+                    <button class="option-btn" onclick="handleAnswer('Kolintang')">Kolintang</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="minigame-result" class="minigame-result hidden">
+            <div class="result-card">
+                <div id="result-icon"></div>
+                <h2 id="result-title"></h2>
+                <p id="result-message"></p>
+                <div class="fact-box">
+                    <p>Sasando adalah instrumen musik petik khas pulau Rote, NTT.</p>
+                </div>
+                <button class="retry-btn" onclick="retryMinigame()">ULANGI MISI 🔄</button>
+            </div>
         </div>
     </div>
 
@@ -1225,220 +1660,35 @@
             penyihir: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/SUMBAR.png'
         };
 
-        const minigameState = {
-            active: false,
-            character: { x: 50, y: 200 },
-            obstacles: [],
-            goal: { x: 350, y: 200 },
-            speed: 3,
-            isAnimating: false,
-            animationFrame: null,
-            progress: 0,
-            maxProgress: 100,
-            sprite: null,
-            spriteLoaded: false
-        };
+        // Mini-Game State
+        let minigameState = 'WALKING';
+        let minigamePosition = 5; // Posisi awal dalam persen
+        let minigameHasArrived = false;
+        let minigameIsCorrect = null;
 
         function showMinigame() {
-            const overlay = document.getElementById('minigame-overlay');
-            const canvas = document.getElementById('minigame-canvas');
+            minigameState = 'WALKING';
+            minigamePosition = 5;
+            minigameHasArrived = false;
+            minigameIsCorrect = null;
             
-            // Set canvas size
-            const width = Math.min(450, window.innerWidth - 60);
-            const height = Math.min(320, window.innerHeight - 260);
-            canvas.width = width;
-            canvas.height = height;
+            document.getElementById('minigame-overlay').classList.remove('hidden');
+            document.getElementById('minigame-walking').classList.remove('hidden');
+            document.getElementById('minigame-challenge').classList.add('hidden');
+            document.getElementById('minigame-result').classList.add('hidden');
             
-            overlay.classList.add('show');
-
-            // Reset state
-            minigameState.active = true;
-            minigameState.character = { x: 50, y: 200 };
-            minigameState.progress = 0;
-            minigameState.isAnimating = false;
-            minigameState.goal = { x: width - 50, y: 200 };
-            minigameState.obstacles = [
-                { x: width * 0.3, y: 180, width: 20, height: 40, type: 'rock' },
-                { x: width * 0.6, y: 190, width: 25, height: 20, type: 'log' },
-                { x: width * 0.8, y: 185, width: 15, height: 30, type: 'bush' }
-            ];
-
-            minigameState.spriteLoaded = false;
-            minigameState.sprite = new Image();
-            minigameState.sprite.onload = () => {
-                minigameState.spriteLoaded = true;
-                drawMinigame();
-            };
-            minigameState.sprite.src = charSpriteUrls[state.charId] || charSpriteUrls.jawa;
-
-            drawMinigame();
-            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk memulai petualangan!';
-            const startBtn = document.getElementById('start-adventure-btn');
-            startBtn.style.display = 'inline-block';
-            startBtn.disabled = false;
-            document.getElementById('quiz-btn').style.display = 'none';
+            updateMinigamePosition();
+            updateMinigameProgress();
         }
 
-        function startAdventure() {
-            if (minigameState.isAnimating) return;
-            minigameState.isAnimating = true;
-            document.getElementById('start-adventure-btn').disabled = true;
-            document.getElementById('minigame-status').textContent = 'Petualangan dimulai...';
-            animateAdventure();
-        }
 
-        function animateAdventure() {
-            if (!minigameState.active) return;
 
-            // Move character forward
-            minigameState.character.x += minigameState.speed;
-            minigameState.progress = Math.min(minigameState.maxProgress,
-                ((minigameState.character.x - 50) / (minigameState.goal.x - 50)) * 100);
 
-            // Check for obstacles and jump over them
-            let isJumping = false;
-            for (let obstacle of minigameState.obstacles) {
-                if (Math.abs(minigameState.character.x - obstacle.x) < 25) {
-                    document.getElementById('minigame-status').textContent = `Melompati ${obstacle.type === 'rock' ? 'batu' : obstacle.type === 'log' ? 'kayu' : 'semak'}...`;
-                    minigameState.character.y = 170; // Jump up
-                    isJumping = true;
-                    break;
-                }
-            }
 
-            // If not jumping, stay on ground
-            if (!isJumping) {
-                minigameState.character.y = 200;
-            }
 
-            drawMinigame();
 
-            if (minigameState.progress >= 100) {
-                // Adventure complete
-                document.getElementById('minigame-status').textContent = 'Petualangan selesai! Tekan tombol untuk lanjut ke soal.';
-                document.getElementById('start-adventure-btn').style.display = 'none';
-                const quizBtn = document.getElementById('quiz-btn');
-                quizBtn.style.display = 'inline-block';
-                quizBtn.disabled = false;
-                minigameState.isAnimating = false;
-                if (minigameState.animationFrame) {
-                    cancelAnimationFrame(minigameState.animationFrame);
-                    minigameState.animationFrame = null;
-                }
-                return;
-            }
 
-            minigameState.animationFrame = requestAnimationFrame(animateAdventure);
-        }
 
-        function drawMinigame() {
-            const canvas = document.getElementById('minigame-canvas');
-            const ctx = canvas.getContext('2d');
-            const w = canvas.width;
-            const h = canvas.height;
-
-            // Clear canvas
-            ctx.clearRect(0, 0, w, h);
-
-            // Background
-            const bg = ctx.createLinearGradient(0, 0, 0, h);
-            bg.addColorStop(0, '#bfe9ff');
-            bg.addColorStop(1, '#d8f5e4');
-            ctx.fillStyle = bg;
-            ctx.fillRect(0, 0, w, h);
-
-            // Ground
-            ctx.fillStyle = '#a8e6a3';
-            ctx.fillRect(0, h * 0.7, w, h * 0.3);
-
-            // Path
-            ctx.fillStyle = '#cfa56f';
-            ctx.fillRect(0, h * 0.75, w, 10);
-
-            // Goal flag
-            ctx.fillStyle = '#ff6b6b';
-            ctx.fillRect(minigameState.goal.x - 5, minigameState.goal.y - 40, 10, 40);
-            ctx.fillStyle = '#ffd93d';
-            ctx.beginPath();
-            ctx.moveTo(minigameState.goal.x, minigameState.goal.y - 40);
-            ctx.lineTo(minigameState.goal.x + 20, minigameState.goal.y - 30);
-            ctx.lineTo(minigameState.goal.x, minigameState.goal.y - 20);
-            ctx.closePath();
-            ctx.fill();
-
-            // Obstacles
-            minigameState.obstacles.forEach(obstacle => {
-                ctx.save();
-                if (obstacle.type === 'rock') {
-                    ctx.fillStyle = '#8d8686';
-                    ctx.beginPath();
-                    ctx.arc(obstacle.x, obstacle.y, obstacle.width/2, 0, Math.PI * 2);
-                    ctx.fill();
-                } else if (obstacle.type === 'log') {
-                    ctx.fillStyle = '#8b4513';
-                    ctx.fillRect(obstacle.x - obstacle.width/2, obstacle.y - obstacle.height/2, obstacle.width, obstacle.height);
-                } else if (obstacle.type === 'bush') {
-                    ctx.fillStyle = '#4a7c59';
-                    ctx.beginPath();
-                    ctx.arc(obstacle.x, obstacle.y, obstacle.width/2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.restore();
-            });
-
-            // Character
-            const char = minigameState.character;
-            if (minigameState.spriteLoaded && minigameState.sprite) {
-                const spriteWidth = 60;
-                const spriteHeight = 80;
-                ctx.drawImage(minigameState.sprite, char.x - spriteWidth / 2, char.y - spriteHeight - 5, spriteWidth, spriteHeight);
-            } else {
-                ctx.save();
-                ctx.fillStyle = '#ffe4c4';
-                ctx.beginPath();
-                ctx.arc(char.x, char.y - 20, 16, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#c9895c';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                // Body
-                ctx.fillStyle = '#7ec8e3';
-                ctx.fillRect(char.x - 12, char.y - 8, 24, 35);
-                ctx.strokeRect(char.x - 12, char.y - 8, 24, 35);
-
-                // Legs
-                ctx.fillStyle = '#5eb3d6';
-                ctx.fillRect(char.x - 6, char.y + 20, 4, 15);
-                ctx.fillRect(char.x + 2, char.y + 20, 4, 15);
-                ctx.restore();
-            }
-
-            // Progress bar
-            ctx.fillStyle = '#ddd';
-            ctx.fillRect(20, 20, w - 40, 10);
-            ctx.fillStyle = '#4CAF50';
-            ctx.fillRect(20, 20, (w - 40) * (minigameState.progress / 100), 10);
-            ctx.strokeStyle = '#333';
-            ctx.strokeRect(20, 20, w - 40, 10);
-        }
-
-        function closeMinigame() {
-            const overlay = document.getElementById('minigame-overlay');
-            overlay.classList.remove('show');
-            minigameState.active = false;
-            if (minigameState.animationFrame) {
-                cancelAnimationFrame(minigameState.animationFrame);
-            }
-            document.getElementById('minigame-status').textContent = '';
-            document.getElementById('start-adventure-btn').style.display = 'none';
-            document.getElementById('quiz-btn').style.display = 'none';
-        }
-
-        function proceedToQuiz() {
-            closeMinigame();
-            showQuiz();
-        }
 
         const cityData = [
             { name: "Mulai", side: "corner", music: "" },
@@ -1943,6 +2193,88 @@
         }
 
         // Mini-Game State
+        let minigameState = 'WALKING';
+        let minigamePosition = 5; // Posisi awal dalam persen
+        let minigameHasArrived = false;
+        let minigameIsCorrect = null;
+
+        function showMinigame() {
+            minigameState = 'WALKING';
+            minigamePosition = 5;
+            minigameHasArrived = false;
+            minigameIsCorrect = null;
+            
+            document.getElementById('minigame-overlay').classList.remove('hidden');
+            document.getElementById('minigame-walking').classList.remove('hidden');
+            document.getElementById('minigame-challenge').classList.add('hidden');
+            document.getElementById('minigame-result').classList.add('hidden');
+            
+            updateMinigamePosition();
+            updateMinigameProgress();
+        }
+
+        function moveForward() {
+            if (minigamePosition < 80) {
+                minigamePosition += 5;
+                updateMinigamePosition();
+                updateMinigameProgress();
+                
+                if (minigamePosition >= 80 && !minigameHasArrived) {
+                    minigameHasArrived = true;
+                    document.getElementById('character').classList.add('arrived');
+                    document.getElementById('move-btn').classList.add('hidden');
+                    document.getElementById('arrived-msg').classList.remove('hidden');
+                }
+            }
+        }
+
+        function enterHouse() {
+            minigameState = 'CHALLENGE';
+            document.getElementById('minigame-walking').classList.add('hidden');
+            document.getElementById('minigame-challenge').classList.remove('hidden');
+        }
+
+        function handleAnswer(answer) {
+            minigameIsCorrect = (answer === 'Sasando');
+            minigameState = 'RESULT';
+            
+            document.getElementById('minigame-challenge').classList.add('hidden');
+            document.getElementById('minigame-result').classList.remove('hidden');
+            
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            
+            if (minigameIsCorrect) {
+                resultIcon.textContent = '🏆';
+                resultTitle.textContent = 'MAESTRO!';
+                resultTitle.style.color = '#22c55e';
+                resultMessage.textContent = 'Jawabanmu Benar';
+                resultMessage.style.color = '#22c55e';
+            } else {
+                resultIcon.textContent = '📚';
+                resultTitle.textContent = 'PELAJARI LAGI';
+                resultTitle.style.color = '#dc2626';
+                resultMessage.textContent = 'Kurang Tepat';
+                resultMessage.style.color = '#dc2626';
+            }
+        }
+
+        function retryMinigame() {
+            document.getElementById('minigame-overlay').classList.add('hidden');
+            // Lanjut ke quiz seperti sebelumnya
+            showQuiz();
+        }
+
+        function updateMinigamePosition() {
+            const character = document.getElementById('character');
+            character.style.left = `${minigamePosition}%`;
+        }
+
+        function updateMinigameProgress() {
+            const progress = Math.round((minigamePosition / 80) * 100);
+            document.getElementById('progress-text').textContent = `${progress}%`;
+        }
 
 
         function closeAreaPreview() {
