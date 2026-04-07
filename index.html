@@ -1837,74 +1837,220 @@
         function drawMinigame() {
             const canvas = document.getElementById('minigame-canvas');
             const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
 
-            ctx.fillStyle = '#6bbf59';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const grassGradient = ctx.createLinearGradient(0, 0, 0, h);
+            grassGradient.addColorStop(0, '#cff9c8');
+            grassGradient.addColorStop(1, '#91d77c');
+            ctx.fillStyle = grassGradient;
+            ctx.fillRect(0, 0, w, h);
 
-            ctx.fillStyle = '#8bc34a';
-            ctx.fillRect(0, 0, minigameState.riverStart - 10, canvas.height);
-            ctx.fillRect(minigameState.riverEnd + 10, 0, canvas.width - minigameState.riverEnd - 10, canvas.height);
+            const riverLeft = minigameState.riverStart;
+            const riverRight = minigameState.riverEnd;
+            const riverTop = h * 0.22;
+            const riverBottom = h * 0.78;
+            const midY = (riverTop + riverBottom) / 2;
 
-            ctx.fillStyle = '#3da8d6';
-            const riverTop = canvas.height * 0.22;
-            const riverHeight = canvas.height * 0.56;
-            ctx.fillRect(minigameState.riverStart, riverTop, minigameState.riverEnd - minigameState.riverStart, riverHeight);
+            const riverPath = [];
+            const segments = 6;
+            for (let i = 0; i <= segments; i += 1) {
+                const t = i / segments;
+                const x = riverLeft + (riverRight - riverLeft) * t + Math.sin(time * 0.013 + t * 2.4) * 10;
+                const y = riverTop + (riverBottom - riverTop) * t;
+                riverPath.push({ x, y });
+            }
 
-            ctx.strokeStyle = '#8cd6ff';
+            const waterGradient = ctx.createLinearGradient(riverLeft, riverTop, riverRight, riverBottom);
+            waterGradient.addColorStop(0, '#79caff');
+            waterGradient.addColorStop(0.4, '#4ea5ff');
+            waterGradient.addColorStop(1, '#a2e0ff');
+            ctx.fillStyle = waterGradient;
+            ctx.beginPath();
+            ctx.moveTo(riverPath[0].x - 42, riverPath[0].y - 16);
+            for (let i = 1; i < riverPath.length; i += 1) {
+                const pt = riverPath[i];
+                ctx.lineTo(pt.x - 42 + Math.sin(time * 0.01 + i * 0.6) * 5, pt.y);
+            }
+            ctx.lineTo(riverPath[riverPath.length - 1].x + 42, riverPath[riverPath.length - 1].y + 16);
+            for (let i = riverPath.length - 1; i >= 0; i -= 1) {
+                const pt = riverPath[i];
+                ctx.lineTo(pt.x + 42 + Math.sin(time * 0.01 + i * 0.6 + 1.5) * 5, pt.y + 8);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
             ctx.lineWidth = 3;
-            for (let i = 0; i < 10; i++) {
-                const x = minigameState.riverStart + 8 + i * 18;
-                const y = riverTop + (i % 2 === 0 ? 25 : 35);
+            for (let j = 0; j < 4; j += 1) {
                 ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.quadraticCurveTo(x + 12, y + (i % 2 ? 12 : -12), x + 24, y);
+                const baseY = riverTop + 30 + j * 28 + Math.sin(time * 0.05 + j) * 8;
+                ctx.moveTo(riverLeft + 16 + j * 28, baseY);
+                ctx.quadraticCurveTo(riverLeft + 28 + j * 28, baseY + 6, riverLeft + 42 + j * 28, baseY);
                 ctx.stroke();
             }
 
-            ctx.fillStyle = '#7b6d5b';
-            minigameState.stones.forEach(stone => {
+            function drawStone(x, y, r) {
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 4;
+                const stoneGradient = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, 4, x, y, r);
+                stoneGradient.addColorStop(0, '#fdf3d8');
+                stoneGradient.addColorStop(1, '#d7b084');
+                ctx.fillStyle = stoneGradient;
                 ctx.beginPath();
-                ctx.arc(stone.x, stone.y, 12, 0, Math.PI * 2);
+                ctx.ellipse(x, y, r, r * 0.7, 0.2, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.fillStyle = '#9e8b74';
+
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
                 ctx.beginPath();
-                ctx.arc(stone.x - 3, stone.y - 4, 4, 0, Math.PI * 2);
+                ctx.ellipse(x - r * 0.22, y - r * 0.24, r * 0.28, r * 0.16, 0, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.fillStyle = '#7b6d5b';
-            });
-
-            const houseWidth = 80;
-            const houseHeight = 50;
-            const houseX = minigameState.houseX - houseWidth / 2;
-            const houseY = canvas.height * 0.3;
-            ctx.fillStyle = '#8d6e63';
-            ctx.fillRect(houseX, houseY + 20, houseWidth, houseHeight);
-            ctx.fillStyle = '#d84315';
-            ctx.beginPath();
-            ctx.moveTo(houseX, houseY + 20);
-            ctx.lineTo(houseX + houseWidth / 2, houseY - 20);
-            ctx.lineTo(houseX + houseWidth, houseY + 20);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(houseX + houseWidth / 2 - 10, houseY + 35, 20, 20);
-            ctx.fillStyle = '#6d4c41';
-            ctx.fillRect(houseX + 20, houseY + 30, 10, 20);
-            ctx.fillRect(houseX + 50, houseY + 30, 10, 20);
-
-            if (minigameState.sprite && minigameState.sprite.complete) {
-                const spriteSize = 48;
-                ctx.drawImage(minigameState.sprite, minigameState.charX - spriteSize / 2, minigameState.charY - spriteSize / 2, spriteSize, spriteSize);
-            } else {
-                ctx.font = 'bold 35px Arial';
-                ctx.fillText('🚶', minigameState.charX, minigameState.charY);
+                ctx.restore();
             }
 
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('SUNGAI', minigameState.riverStart + (minigameState.riverEnd - minigameState.riverStart) / 2, riverTop - 10);
-            ctx.fillText('RUMAH ADAT', houseX + houseWidth / 2, houseY - 30);
+            minigameState.stones.forEach(stone => drawStone(stone.x, stone.y, 18));
+
+            const houseBaseX = minigameState.houseX;
+            const houseBaseY = h * 0.28;
+            const houseWidth = 110;
+            const houseHeight = 80;
+
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.18)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetY = 6;
+            ctx.beginPath();
+            ctx.ellipse(houseBaseX, houseBaseY + houseHeight * 0.55, 52, 12, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(67, 49, 21, 0.16)';
+            ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.fillStyle = '#ffdca2';
+            ctx.strokeStyle = '#c28f5f';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.roundRect(houseBaseX - houseWidth / 2, houseBaseY, houseWidth, houseHeight * 0.62, 22);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ff9a6c';
+            ctx.beginPath();
+            ctx.moveTo(houseBaseX - houseWidth / 2 - 6, houseBaseY + 18);
+            ctx.quadraticCurveTo(houseBaseX, houseBaseY - 42, houseBaseX + houseWidth / 2 + 6, houseBaseY + 18);
+            ctx.lineTo(houseBaseX + houseWidth / 2 + 6, houseBaseY + 38);
+            ctx.lineTo(houseBaseX - houseWidth / 2 - 6, houseBaseY + 38);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.fillStyle = '#f6e3c6';
+            ctx.beginPath();
+            ctx.roundRect(houseBaseX - 24, houseBaseY + 28, 48, 60, 14);
+            ctx.fill();
+            ctx.strokeStyle = '#c28f5f';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff8e4';
+            ctx.fillRect(houseBaseX + 28, houseBaseY + 30, 36, 36);
+            ctx.strokeRect(houseBaseX + 28, houseBaseY + 30, 36, 36);
+            ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(houseBaseX + 28, houseBaseY + 48);
+            ctx.lineTo(houseBaseX + 64, houseBaseY + 48);
+            ctx.moveTo(houseBaseX + 46, houseBaseY + 30);
+            ctx.lineTo(houseBaseX + 46, houseBaseY + 66);
+            ctx.stroke();
+
+            ctx.fillStyle = '#e5b37c';
+            ctx.beginPath();
+            ctx.roundRect(houseBaseX - 18, houseBaseY + 58, 14, 24, 8);
+            ctx.roundRect(houseBaseX + 8, houseBaseY + 58, 14, 24, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            function drawChibi() {
+                const cx = minigameState.charX;
+                const cy = minigameState.charY;
+                const scale = Math.min(w, h) / 1200;
+                const headR = 28 * scale;
+                const bodyW = 32 * scale;
+                const bodyH = 44 * scale;
+
+                ctx.save();
+                ctx.fillStyle = 'rgba(0,0,0,0.16)';
+                ctx.beginPath();
+                ctx.ellipse(cx, cy + bodyH * 0.6, bodyW * 0.8, 9 * scale, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffe1c8';
+                ctx.strokeStyle = '#c28f5f';
+                ctx.lineWidth = 3 * scale;
+                ctx.beginPath();
+                ctx.roundRect(cx - bodyW / 2, cy + headR * 0.4, bodyW, bodyH, 18 * scale);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffeddb';
+                ctx.beginPath();
+                ctx.arc(cx, cy, headR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = 'rgba(255, 135, 120, 0.35)';
+                ctx.beginPath();
+                ctx.arc(cx - 10 * scale, cy + 4 * scale, 7 * scale, 0, Math.PI * 2);
+                ctx.arc(cx + 10 * scale, cy + 4 * scale, 7 * scale, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#3b2b24';
+                ctx.beginPath();
+                ctx.arc(cx - 8 * scale, cy - 2 * scale, 6 * scale, 0, Math.PI * 2);
+                ctx.arc(cx + 8 * scale, cy - 2 * scale, 6 * scale, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(cx - 6 * scale, cy - 4 * scale, 2 * scale, 0, Math.PI * 2);
+                ctx.arc(cx + 10 * scale, cy - 4 * scale, 2 * scale, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = '#8b5a2f';
+                ctx.lineWidth = 3 * scale;
+                ctx.beginPath();
+                ctx.arc(cx, cy + 11 * scale, 6 * scale, 0, Math.PI, false);
+                ctx.stroke();
+
+                ctx.fillStyle = '#8c5a35';
+                ctx.beginPath();
+                ctx.moveTo(cx - headR + 8 * scale, cy - 5 * scale);
+                ctx.quadraticCurveTo(cx, cy - headR * 1.05, cx + headR - 8 * scale, cy - 5 * scale);
+                ctx.lineTo(cx + headR - 8 * scale, cy + 9 * scale);
+                ctx.quadraticCurveTo(cx, cy + 4 * scale, cx - headR + 8 * scale, cy + 9 * scale);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = '#ffe1c8';
+                ctx.beginPath();
+                ctx.roundRect(cx - bodyW / 2 - 7 * scale, cy + headR * 0.5, 14 * scale, 28 * scale, 8 * scale);
+                ctx.roundRect(cx + bodyW / 2 - 7 * scale, cy + headR * 0.5, 14 * scale, 28 * scale, 8 * scale);
+                ctx.fill();
+
+                ctx.fillStyle = '#f48f97';
+                ctx.beginPath();
+                ctx.roundRect(cx - bodyW * 0.35, cy + headR + bodyH * 0.42, 12 * scale, 10 * scale, 6 * scale);
+                ctx.roundRect(cx + bodyW * 0.23, cy + headR + bodyH * 0.42, 12 * scale, 10 * scale, 6 * scale);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            drawChibi();
         }
 
         function closeMinigame() {
