@@ -1842,55 +1842,63 @@
             const w = canvas.width;
             const h = canvas.height;
 
+            // Background: sky gradient
             const bg = ctx.createLinearGradient(0, 0, 0, h);
             bg.addColorStop(0, '#b3e5ff');
-            bg.addColorStop(0.38, '#d6f8d3');
-            bg.addColorStop(1, '#d6f3b7');
+            bg.addColorStop(0.4, '#d7f6d8');
+            bg.addColorStop(1, '#d3f3c8');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, w, h);
 
+            // Left side: flat grass rectangle
             ctx.save();
-            ctx.fillStyle = 'rgba(183, 236, 143, 0.78)';
-            ctx.beginPath();
-            ctx.moveTo(0, h * 0.16);
-            ctx.quadraticCurveTo(w * 0.08, h * 0.05, w * 0.2, h * 0.2);
-            ctx.lineTo(w * 0.2, h * 0.88);
-            ctx.quadraticCurveTo(w * 0.08, h * 0.96, 0, h * 0.9);
-            ctx.closePath();
-            ctx.fill();
+            ctx.fillStyle = '#a8e6a3';
+            ctx.fillRect(0, h * 0.3, w * 0.25, h * 0.7);
+            ctx.strokeStyle = '#7cb342';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, h * 0.3, w * 0.25, h * 0.7);
             ctx.restore();
 
-            const riverTop = h * 0.18;
-            const riverBottom = h * 0.82;
-            const ctrl = w * 0.15;
+            // Right side: grass for house
             ctx.save();
-            const riverGradient = ctx.createLinearGradient(minigameState.riverStart, riverTop, minigameState.riverEnd, riverBottom);
+            ctx.fillStyle = '#a8e6a3';
+            ctx.fillRect(w * 0.75, h * 0.3, w * 0.25, h * 0.7);
+            ctx.strokeStyle = '#7cb342';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(w * 0.75, h * 0.3, w * 0.25, h * 0.7);
+            ctx.restore();
+
+            // River: horizontal flowing with smooth curves
+            const riverY = h * 0.5;
+            const riverHeight = h * 0.4;
+            const riverStart = w * 0.25;
+            const riverEnd = w * 0.75;
+            ctx.save();
+            const riverGradient = ctx.createLinearGradient(riverStart, riverY - riverHeight/2, riverEnd, riverY + riverHeight/2);
             riverGradient.addColorStop(0, '#7cc8ff');
             riverGradient.addColorStop(1, '#3e88ff');
             ctx.fillStyle = riverGradient;
             ctx.shadowColor = 'rgba(0, 110, 255, 0.18)';
-            ctx.shadowBlur = 22;
+            ctx.shadowBlur = 20;
             ctx.shadowOffsetY = 6;
             ctx.beginPath();
-            ctx.moveTo(minigameState.riverStart, riverTop);
-            ctx.bezierCurveTo(minigameState.riverStart + ctrl, h * 0.28, minigameState.riverEnd - ctrl, h * 0.31, minigameState.riverEnd, h * 0.36);
-            ctx.lineTo(minigameState.riverEnd + 18, h * 0.68);
-            ctx.bezierCurveTo(minigameState.riverEnd - ctrl, h * 0.8, minigameState.riverStart + ctrl, h * 0.74, minigameState.riverStart, riverBottom);
+            ctx.moveTo(riverStart, riverY - riverHeight/2);
+            ctx.bezierCurveTo(riverStart + w*0.1, riverY - riverHeight/2 - 10, riverEnd - w*0.1, riverY - riverHeight/2 - 10, riverEnd, riverY - riverHeight/2);
+            ctx.lineTo(riverEnd, riverY + riverHeight/2);
+            ctx.bezierCurveTo(riverEnd - w*0.1, riverY + riverHeight/2 + 10, riverStart + w*0.1, riverY + riverHeight/2 + 10, riverStart, riverY + riverHeight/2);
             ctx.closePath();
             ctx.fill();
             ctx.restore();
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.56)';
+            // River highlights
+            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
             ctx.lineWidth = 4;
             ctx.beginPath();
-            ctx.moveTo(minigameState.riverStart + 24, riverTop + 12);
-            ctx.bezierCurveTo(minigameState.riverStart + ctrl, h * 0.24, minigameState.riverEnd - ctrl, h * 0.3, minigameState.riverEnd - 26, h * 0.38);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(minigameState.riverStart + 18, riverTop + 70);
-            ctx.bezierCurveTo(minigameState.riverStart + ctrl * 0.8, h * 0.46, minigameState.riverEnd - ctrl * 0.8, h * 0.53, minigameState.riverEnd - 34, h * 0.64);
+            ctx.moveTo(riverStart + 20, riverY - riverHeight/2 + 20);
+            ctx.bezierCurveTo(riverStart + w*0.1, riverY - riverHeight/2 + 10, riverEnd - w*0.1, riverY - riverHeight/2 + 10, riverEnd - 20, riverY - riverHeight/2 + 20);
             ctx.stroke();
 
+            // Stones: 5 round stones in straight path
             function drawStone(x, y, r) {
                 ctx.save();
                 ctx.shadowColor = 'rgba(0,0,0,0.18)';
@@ -1901,23 +1909,29 @@
                 gradient.addColorStop(1, '#c4a678');
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
-                ctx.ellipse(x, y, r, r * 0.75, 0, 0, Math.PI * 2);
+                ctx.arc(x, y, r, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             }
-            minigameState.stones.forEach((stone, idx) => drawStone(stone.x, stone.y, 17 + idx * 0.4));
+            const stoneSpacing = (riverEnd - riverStart) / 6;
+            for (let i = 1; i <= 5; i++) {
+                const stoneX = riverStart + stoneSpacing * i;
+                const stoneY = riverY;
+                drawStone(stoneX, stoneY, 18);
+            }
 
-            const houseX = minigameState.houseX;
-            const houseY = h * 0.24;
-            const houseW = w * 0.26;
-            const houseH = h * 0.4;
+            // Right side: cartoon house on grass
+            const houseX = w * 0.85;
+            const houseY = h * 0.35;
+            const houseW = w * 0.15;
+            const houseH = h * 0.35;
             ctx.save();
             ctx.shadowColor = 'rgba(0,0,0,0.18)';
             ctx.shadowBlur = 18;
             ctx.shadowOffsetY = 8;
             ctx.fillStyle = '#fff2d8';
             ctx.beginPath();
-            ctx.roundRect(houseX - houseW / 2, houseY + 34, houseW, houseH, 24);
+            ctx.roundRect(houseX - houseW / 2, houseY + 20, houseW, houseH, 20);
             ctx.fill();
             ctx.restore();
 
@@ -1925,47 +1939,48 @@
             ctx.strokeStyle = '#d77b44';
             ctx.lineWidth = 4;
             ctx.beginPath();
-            ctx.moveTo(houseX - houseW / 2 - 10, houseY + 34);
-            ctx.lineTo(houseX, houseY - 22);
-            ctx.lineTo(houseX + houseW / 2 + 10, houseY + 34);
+            ctx.moveTo(houseX - houseW / 2 - 8, houseY + 20);
+            ctx.lineTo(houseX, houseY - 15);
+            ctx.lineTo(houseX + houseW / 2 + 8, houseY + 20);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
             ctx.fillStyle = '#f5d7a9';
-            ctx.fillRect(houseX - houseW / 2 + 18, houseY + 74, houseW - 36, houseH - 74);
-            ctx.strokeRect(houseX - houseW / 2 + 18, houseY + 74, houseW - 36, houseH - 74);
+            ctx.fillRect(houseX - houseW / 2 + 12, houseY + 50, houseW - 24, houseH - 50);
+            ctx.strokeRect(houseX - houseW / 2 + 12, houseY + 50, houseW - 24, houseH - 50);
 
             ctx.fillStyle = '#c96a3c';
-            ctx.fillRect(houseX - 24, houseY + 106, 48, 68);
-            ctx.strokeRect(houseX - 24, houseY + 106, 48, 68);
+            ctx.fillRect(houseX - 16, houseY + 80, 32, 50);
+            ctx.strokeRect(houseX - 16, houseY + 80, 32, 50);
 
             ctx.fillStyle = '#fff8ef';
-            const winW = 30;
-            const winH = 30;
-            ctx.fillRect(houseX + 16, houseY + 94, winW, winH);
-            ctx.fillRect(houseX + 16, houseY + 136, winW, winH);
+            const winW = 20;
+            const winH = 20;
+            ctx.fillRect(houseX + 10, houseY + 70, winW, winH);
+            ctx.fillRect(houseX + 10, houseY + 100, winW, winH);
             ctx.strokeStyle = 'rgba(255,255,255,0.75)';
             ctx.lineWidth = 2;
-            ctx.strokeRect(houseX + 16, houseY + 94, winW, winH);
-            ctx.strokeRect(houseX + 16, houseY + 136, winW, winH);
+            ctx.strokeRect(houseX + 10, houseY + 70, winW, winH);
+            ctx.strokeRect(houseX + 10, houseY + 100, winW, winH);
 
             ctx.strokeStyle = '#b56b51';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(houseX + 16 + winW / 2, houseY + 94);
-            ctx.lineTo(houseX + 16 + winW / 2, houseY + 94 + winH);
-            ctx.moveTo(houseX + 16, houseY + 94 + winH / 2);
-            ctx.lineTo(houseX + 16 + winW, houseY + 94 + winH / 2);
-            ctx.moveTo(houseX + 16 + winW / 2, houseY + 136);
-            ctx.lineTo(houseX + 16 + winW / 2, houseY + 136 + winH);
-            ctx.moveTo(houseX + 16, houseY + 136 + winH / 2);
-            ctx.lineTo(houseX + 16 + winW, houseY + 136 + winH / 2);
+            ctx.moveTo(houseX + 10 + winW / 2, houseY + 70);
+            ctx.lineTo(houseX + 10 + winW / 2, houseY + 70 + winH);
+            ctx.moveTo(houseX + 10, houseY + 70 + winH / 2);
+            ctx.lineTo(houseX + 10 + winW, houseY + 70 + winH / 2);
+            ctx.moveTo(houseX + 10 + winW / 2, houseY + 100);
+            ctx.lineTo(houseX + 10 + winW / 2, houseY + 100 + winH);
+            ctx.moveTo(houseX + 10, houseY + 100 + winH / 2);
+            ctx.lineTo(houseX + 10 + winW, houseY + 100 + winH / 2);
             ctx.stroke();
 
+            // Character: selected avatar on left near river
             function drawChibi() {
-                const cx = minigameState.charX;
-                const cy = minigameState.charY;
+                const cx = w * 0.18;
+                const cy = h * 0.6;
                 const scale = Math.min(w, h) / 700;
                 const headR = 24 * scale;
                 const bodyW = 42 * scale;
