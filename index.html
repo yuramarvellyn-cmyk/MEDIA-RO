@@ -1217,6 +1217,14 @@
             penyihir: `<img src="https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/SUMBAR.png" style="width: 100%; height: auto; max-width: 120px; display: block; margin: 0 auto;" alt="SUMBAR"/>`
         };
 
+        const charSpriteUrls = {
+            jawa: 'https://raw.githubusercontent.com/AYAA-lab/Game-Resonance-Odyssey/4d1f20624072c139e13a3200d17f9d7947814b12/JAWA.png',
+            srikandi: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/KALIMANTAN.png',
+            prajurit: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/LAMPUNG.png',
+            penjaga: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/PAPUA.png',
+            penyihir: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/SUMBAR.png'
+        };
+
         const minigameState = {
             active: false,
             character: { x: 50, y: 200 },
@@ -1226,7 +1234,9 @@
             isAnimating: false,
             animationFrame: null,
             progress: 0,
-            maxProgress: 100
+            maxProgress: 100,
+            sprite: null,
+            spriteLoaded: false
         };
 
         function showMinigame() {
@@ -1252,6 +1262,14 @@
                 { x: width * 0.6, y: 190, width: 25, height: 20, type: 'log' },
                 { x: width * 0.8, y: 185, width: 15, height: 30, type: 'bush' }
             ];
+
+            minigameState.spriteLoaded = false;
+            minigameState.sprite = new Image();
+            minigameState.sprite.onload = () => {
+                minigameState.spriteLoaded = true;
+                drawMinigame();
+            };
+            minigameState.sprite.src = charSpriteUrls[state.charId] || charSpriteUrls.jawa;
 
             drawMinigame();
             document.getElementById('minigame-status').textContent = 'Tekan tombol untuk memulai petualangan!';
@@ -1368,27 +1386,33 @@
                 ctx.restore();
             });
 
-            // Character (simple sprite)
+            // Character
             const char = minigameState.character;
-            ctx.save();
-            ctx.fillStyle = '#ffe4c4';
-            ctx.beginPath();
-            ctx.arc(char.x, char.y - 15, 12, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#c9895c';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            if (minigameState.spriteLoaded && minigameState.sprite) {
+                const spriteWidth = 40;
+                const spriteHeight = 50;
+                ctx.drawImage(minigameState.sprite, char.x - spriteWidth / 2, char.y - spriteHeight - 10, spriteWidth, spriteHeight);
+            } else {
+                ctx.save();
+                ctx.fillStyle = '#ffe4c4';
+                ctx.beginPath();
+                ctx.arc(char.x, char.y - 15, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#c9895c';
+                ctx.lineWidth = 2;
+                ctx.stroke();
 
-            // Body
-            ctx.fillStyle = '#7ec8e3';
-            ctx.fillRect(char.x - 8, char.y - 5, 16, 25);
-            ctx.strokeRect(char.x - 8, char.y - 5, 16, 25);
+                // Body
+                ctx.fillStyle = '#7ec8e3';
+                ctx.fillRect(char.x - 8, char.y - 5, 16, 25);
+                ctx.strokeRect(char.x - 8, char.y - 5, 16, 25);
 
-            // Legs
-            ctx.fillStyle = '#5eb3d6';
-            ctx.fillRect(char.x - 6, char.y + 20, 4, 15);
-            ctx.fillRect(char.x + 2, char.y + 20, 4, 15);
-            ctx.restore();
+                // Legs
+                ctx.fillStyle = '#5eb3d6';
+                ctx.fillRect(char.x - 6, char.y + 20, 4, 15);
+                ctx.fillRect(char.x + 2, char.y + 20, 4, 15);
+                ctx.restore();
+            }
 
             // Progress bar
             ctx.fillStyle = '#ddd';
