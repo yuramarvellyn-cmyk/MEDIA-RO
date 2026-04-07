@@ -1231,6 +1231,14 @@
 
         function showMinigame() {
             const overlay = document.getElementById('minigame-overlay');
+            const canvas = document.getElementById('minigame-canvas');
+            
+            // Set canvas size
+            const width = Math.min(450, window.innerWidth - 60);
+            const height = Math.min(320, window.innerHeight - 260);
+            canvas.width = width;
+            canvas.height = height;
+            
             overlay.classList.add('show');
 
             // Reset state
@@ -1238,15 +1246,18 @@
             minigameState.character = { x: 50, y: 200 };
             minigameState.progress = 0;
             minigameState.isAnimating = false;
+            minigameState.goal = { x: width - 50, y: 200 };
             minigameState.obstacles = [
-                { x: 150, y: 180, width: 20, height: 40, type: 'rock' },
-                { x: 250, y: 190, width: 25, height: 20, type: 'log' },
-                { x: 320, y: 185, width: 15, height: 30, type: 'bush' }
+                { x: width * 0.3, y: 180, width: 20, height: 40, type: 'rock' },
+                { x: width * 0.6, y: 190, width: 25, height: 20, type: 'log' },
+                { x: width * 0.8, y: 185, width: 15, height: 30, type: 'bush' }
             ];
 
             drawMinigame();
             document.getElementById('minigame-status').textContent = 'Tekan tombol untuk memulai petualangan!';
-            document.getElementById('start-adventure-btn').style.display = 'inline-block';
+            const startBtn = document.getElementById('start-adventure-btn');
+            startBtn.style.display = 'inline-block';
+            startBtn.disabled = false;
             document.getElementById('quiz-btn').style.display = 'none';
         }
 
@@ -1266,16 +1277,20 @@
             minigameState.progress = Math.min(minigameState.maxProgress,
                 ((minigameState.character.x - 50) / (minigameState.goal.x - 50)) * 100);
 
-            // Check for obstacles
+            // Check for obstacles and jump over them
+            let isJumping = false;
             for (let obstacle of minigameState.obstacles) {
-                if (Math.abs(minigameState.character.x - obstacle.x) < 20) {
-                    document.getElementById('minigame-status').textContent = `Menghindari ${obstacle.type === 'rock' ? 'batu' : obstacle.type === 'log' ? 'kayu' : 'semak'}...`;
-                    minigameState.character.y = obstacle.y - 30; // Jump over obstacle
-                    setTimeout(() => {
-                        minigameState.character.y = 200; // Land back
-                    }, 300);
+                if (Math.abs(minigameState.character.x - obstacle.x) < 25) {
+                    document.getElementById('minigame-status').textContent = `Melompati ${obstacle.type === 'rock' ? 'batu' : obstacle.type === 'log' ? 'kayu' : 'semak'}...`;
+                    minigameState.character.y = 170; // Jump up
+                    isJumping = true;
                     break;
                 }
+            }
+
+            // If not jumping, stay on ground
+            if (!isJumping) {
+                minigameState.character.y = 200;
             }
 
             drawMinigame();
@@ -1284,9 +1299,14 @@
                 // Adventure complete
                 document.getElementById('minigame-status').textContent = 'Petualangan selesai! Tekan tombol untuk lanjut ke soal.';
                 document.getElementById('start-adventure-btn').style.display = 'none';
-                document.getElementById('quiz-btn').style.display = 'inline-block';
-                document.getElementById('quiz-btn').disabled = false;
+                const quizBtn = document.getElementById('quiz-btn');
+                quizBtn.style.display = 'inline-block';
+                quizBtn.disabled = false;
                 minigameState.isAnimating = false;
+                if (minigameState.animationFrame) {
+                    cancelAnimationFrame(minigameState.animationFrame);
+                    minigameState.animationFrame = null;
+                }
                 return;
             }
 
