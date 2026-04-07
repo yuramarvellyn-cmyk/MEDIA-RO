@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scene Petualangan - Resonance Odyssey</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #87CEEB;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 14px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">Scene Petualangan Semi-Realistis 2.5D</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Variabel untuk animasi
+        let time = 0;
+        let waveOffset = 0;
+
+        // Fungsi untuk menggambar scene
+        function drawScene() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Background gradient (langit)
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#98FB98');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Transformasi isometrik
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.scale(0.8, 0.4);
+            ctx.rotate(-Math.PI / 6);
+
+            // Gambar rumput (ground)
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(-400, 100, 800, 200);
+
+            // Variasi warna rumput
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random() * 800 - 400;
+                const y = 100 + Math.random() * 200;
+                ctx.fillStyle = Math.random() > 0.5 ? '#32CD32' : '#006400';
+                ctx.fillRect(x, y, 10, 10);
+            }
+
+            // Gambar sungai
+            ctx.fillStyle = '#4169E1';
+            ctx.fillRect(-200, 150, 400, 100);
+
+            // Gelombang air
+            ctx.strokeStyle = '#4682B4';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 10; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-200 + i * 40, 150 + Math.sin(time * 0.01 + i) * 5);
+                ctx.lineTo(-160 + i * 40, 150 + Math.sin(time * 0.01 + i + 1) * 5);
+                ctx.stroke();
+            }
+
+            // Refleksi cahaya
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.ellipse(-150 + i * 80, 180, 20, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Batu sungai terendam
+            ctx.fillStyle = '#696969';
+            ctx.beginPath();
+            ctx.ellipse(-100, 220, 30, 15, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.ellipse(50, 210, 25, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.ellipse(120, 230, 35, 18, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tekstur batu
+            ctx.strokeStyle = '#2F4F4F';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(-100, 220, 30, 15, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Rumah adat
+            // Dinding
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(200, 50, 80, 60);
+
+            // Atap
+            ctx.fillStyle = '#654321';
+            ctx.beginPath();
+            ctx.moveTo(190, 50);
+            ctx.lineTo(240, 20);
+            ctx.lineTo(290, 50);
+            ctx.closePath();
+            ctx.fill();
+
+            // Detail atap
+            ctx.strokeStyle = '#2F1B14';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(190, 50);
+            ctx.lineTo(240, 20);
+            ctx.lineTo(290, 50);
+            ctx.stroke();
+
+            // Pintu
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(230, 80, 20, 30);
+
+            // Jendela
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(210, 70, 15, 15);
+
+            // Karakter manusia
+            ctx.fillStyle = '#FFDBAC';
+            ctx.beginPath();
+            ctx.ellipse(250, 120, 8, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Badan
+            ctx.fillStyle = '#4169E1';
+            ctx.fillRect(245, 132, 10, 15);
+
+            // Kaki
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(247, 147, 3, 8);
+            ctx.fillRect(252, 147, 3, 8);
+
+            // Lengan
+            ctx.fillStyle = '#FFDBAC';
+            ctx.fillRect(240, 135, 5, 10);
+            ctx.fillRect(257, 135, 5, 10);
+
+            // Bayangan
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(250, 160, 15, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+
+            // Pencahayaan ambient (overlay)
+            ctx.fillStyle = 'rgba(255, 218, 185, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            time++;
+            requestAnimationFrame(drawScene);
+        }
+
+        // Mulai animasi
+        drawScene();
+    </script>
+</body>
+</html>
