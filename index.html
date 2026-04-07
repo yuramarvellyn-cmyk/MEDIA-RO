@@ -1660,12 +1660,6 @@
             penyihir: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/SUMBAR.png'
         };
 
-        // Mini-Game State
-        let minigameState = 'WALKING';
-        let minigamePosition = 5; // Posisi awal dalam persen
-        let minigameHasArrived = false;
-        let minigameIsCorrect = null;
-
         function showMinigame() {
             minigameState = 'WALKING';
             minigamePosition = 5;
@@ -1955,101 +1949,6 @@
             }, TRAVEL_DURATION);
         }
 
-        function showQuiz() {
-            // Hentikan musik perjalanan saat quiz muncul
-            if (state.currentAudio) {
-                state.currentAudio.pause();
-                state.currentAudio.currentTime = 0;
-            }
-            
-            state.currentQuiz = cityQuestions[state.idx];
-            
-            if (!state.currentQuiz) {
-                state.isMoving = false;
-                return;
-            }
-
-            const overlay = document.getElementById('quiz-overlay');
-            document.getElementById('quiz-header').innerText = `TANTANGAN MUSIK: ${cityData[state.idx].name}`;
-            document.getElementById('quiz-question').innerText = state.currentQuiz.q;
-            
-            document.getElementById('quiz-feedback-box').classList.remove('show');
-            
-            const container = document.getElementById('quiz-options');
-            container.innerHTML = '';
-            
-            state.currentQuiz.a.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'quiz-opt-btn';
-                btn.innerText = opt;
-                btn.onclick = () => checkAns(idx === state.currentQuiz.correct);
-                container.appendChild(btn);
-            });
-            
-            // pause auto-walk while quiz is shown
-            state.autoPaused = true;
-            overlay.classList.add('show');
-        }
-
-        function checkAns(correct) {
-            document.querySelectorAll('.quiz-opt-btn').forEach(b => b.disabled = true);
-            
-            // Record jawaban
-            const questionId = state.idx;
-            state.answers.push({
-                questionId: questionId,
-                cityName: cityData[questionId].name,
-                correct: correct,
-                timestamp: new Date().toISOString()
-            });
-            
-            const feedbackBox = document.getElementById('quiz-feedback-box');
-            const icon = document.getElementById('feedback-icon');
-            const title = document.getElementById('feedback-title');
-            const message = document.getElementById('feedback-message');
-            
-            feedbackBox.classList.add('show');
-
-            if (correct) {
-                playSound(523.25, 0.1);
-                icon.innerText = "✅";
-                title.innerText = "BENAR!";
-                title.style.color = '#22c55e';
-                message.innerText = "Luar biasa! Pengetahuan musikmu sangat luas.";
-                message.style.color = '#667eea';
-            } else {
-                playSound(98, 0.2);
-                state.lives--;
-                icon.innerText = "❌";
-                title.innerText = "SALAH!";
-                title.style.color = '#dc2626';
-                message.innerText = `Jawaban yang benar adalah: ${state.currentQuiz.a[state.currentQuiz.correct]}`;
-                message.style.color = '#dc2626';
-                
-                const board = document.getElementById('board');
-                board.classList.add('shake');
-                setTimeout(() => board.classList.remove('shake'), 400);
-            }
-
-            setTimeout(() => {
-                document.getElementById('quiz-overlay').classList.remove('show');
-                state.isMoving = false;
-                if (state.lives <= 0) {
-                    finish(false);
-                } else if (state.visited.size === cityData.length) {
-                    finish(true);
-                }
-                updateTokenPos();
-                // resume auto if it was running before quiz
-                if (state.autoMode) {
-                    state.autoPaused = false;
-                    if (state.autoTimer) clearTimeout(state.autoTimer);
-                    state.autoTimer = setTimeout(autoStep, 300);
-                }
-                updateControlButtons();
-            }, 2000);
-        }
-
         function sendGameDataToSpreadsheet(win) {
             // Ganti URL ini dengan URL Google Forms Anda
             const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScqZ0E6JF0yOCgyU9CdywAkMdGo-cRWtDjYaM8eJa3ZPbBjig/formResponse';
@@ -2260,10 +2159,95 @@
             }
         }
 
-        function retryMinigame() {
-            document.getElementById('minigame-overlay').classList.add('hidden');
-            // Lanjut ke quiz seperti sebelumnya
-            showQuiz();
+        function showQuiz() {
+            // Hentikan musik perjalanan saat quiz muncul
+            if (state.currentAudio) {
+                state.currentAudio.pause();
+                state.currentAudio.currentTime = 0;
+            }
+            
+            state.currentQuiz = cityQuestions[state.idx];
+            
+            if (!state.currentQuiz) {
+                state.isMoving = false;
+                return;
+            }
+
+            const overlay = document.getElementById('quiz-overlay');
+            document.getElementById('quiz-header').innerText = `TANTANGAN MUSIK: ${cityData[state.idx].name}`;
+            document.getElementById('quiz-question').innerText = state.currentQuiz.q;
+            
+            document.getElementById('quiz-feedback-box').classList.remove('show');
+            
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+            
+            state.currentQuiz.a.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-opt-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAns(idx === state.currentQuiz.correct);
+                container.appendChild(btn);
+            });
+            
+            // pause auto-walk while quiz is shown
+            state.autoPaused = true;
+            overlay.classList.add('show');
+        }
+
+        function checkAns(correct) {
+            document.querySelectorAll('.quiz-opt-btn').forEach(b => b.disabled = true);
+            
+            // Record jawaban
+            const questionId = state.idx;
+            state.answers.push({
+                questionId: questionId,
+                correct: correct,
+                timestamp: Date.now()
+            });
+            
+            // Update score
+            if (correct) {
+                state.score += 10;
+                document.getElementById('score').innerText = state.score;
+                playSound('correct');
+            } else {
+                playSound('wrong');
+            }
+            
+            // Show feedback
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            const feedbackText = document.getElementById('quiz-feedback-text');
+            feedbackText.innerText = correct ? 'BENAR! 🎉' : 'SALAH! 😞';
+            feedbackBox.className = `quiz-feedback-box ${correct ? 'correct' : 'wrong'}`;
+            feedbackBox.classList.add('show');
+            
+            // Auto continue after delay
+            setTimeout(() => {
+                const overlay = document.getElementById('quiz-overlay');
+                overlay.classList.remove('show');
+                
+                // Resume auto-walk
+                state.autoPaused = false;
+                
+                // Move to next city
+                if (state.idx < cityData.length - 1) {
+                    state.idx++;
+                    updateBoard();
+                    updateControlButtons();
+                    
+                    // Start moving to next city
+                    setTimeout(() => {
+                        if (!state.autoPaused) {
+                            handleMove('right');
+                        }
+                    }, 1000);
+                } else {
+                    // Game finished
+                    state.isMoving = false;
+                    showResult();
+                }
+            }, 2000);
         }
 
         function updateMinigamePosition() {
