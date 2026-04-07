@@ -1842,212 +1842,204 @@
             const w = canvas.width;
             const h = canvas.height;
 
-            // Background: sky gradient
-            const bg = ctx.createLinearGradient(0, 0, 0, h);
-            bg.addColorStop(0, '#b3e5ff');
-            bg.addColorStop(0.4, '#d7f6d8');
-            bg.addColorStop(1, '#d3f3c8');
-            ctx.fillStyle = bg;
+            // Background: soft sky and hills
+            const sky = ctx.createLinearGradient(0, 0, 0, h);
+            sky.addColorStop(0, '#bfe9ff');
+            sky.addColorStop(0.55, '#d8f5e4');
+            sky.addColorStop(1, '#eaf7d9');
+            ctx.fillStyle = sky;
             ctx.fillRect(0, 0, w, h);
 
-            // Left side: flat grass rectangle
+            ctx.fillStyle = '#c7f0c9';
+            ctx.beginPath();
+            ctx.ellipse(w * 0.25, h * 0.55, w * 0.29, h * 0.2, 0, Math.PI, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(w * 0.7, h * 0.55, w * 0.35, h * 0.25, 0, Math.PI, 2 * Math.PI);
+            ctx.fill();
+
+            // Distant hills
+            ctx.fillStyle = '#92d690';
+            ctx.beginPath();
+            ctx.ellipse(w * 0.15, h * 0.6, w * 0.18, h * 0.16, 0, Math.PI, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(w * 0.55, h * 0.6, w * 0.25, h * 0.22, 0, Math.PI, 2 * Math.PI);
+            ctx.fill();
+
+            // Left tree
+            const treeBaseX = w * 0.18;
+            const treeBaseY = h * 0.44;
             ctx.save();
-            ctx.fillStyle = '#a8e6a3';
-            ctx.fillRect(0, h * 0.3, w * 0.25, h * 0.7);
-            ctx.strokeStyle = '#7cb342';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(0, h * 0.3, w * 0.25, h * 0.7);
+            ctx.fillStyle = '#8d5a3c';
+            ctx.fillRect(treeBaseX - 18, treeBaseY, 36, 90);
             ctx.restore();
 
-            // Right side: grass for house
             ctx.save();
-            ctx.fillStyle = '#a8e6a3';
-            ctx.fillRect(w * 0.75, h * 0.3, w * 0.25, h * 0.7);
-            ctx.strokeStyle = '#7cb342';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(w * 0.75, h * 0.3, w * 0.25, h * 0.7);
-            ctx.restore();
-
-            // River: horizontal flowing with smooth curves
-            const riverY = h * 0.5;
-            const riverHeight = h * 0.4;
-            const riverStart = w * 0.25;
-            const riverEnd = w * 0.75;
-            ctx.save();
-            const riverGradient = ctx.createLinearGradient(riverStart, riverY - riverHeight/2, riverEnd, riverY + riverHeight/2);
-            riverGradient.addColorStop(0, '#7cc8ff');
-            riverGradient.addColorStop(1, '#3e88ff');
-            ctx.fillStyle = riverGradient;
-            ctx.shadowColor = 'rgba(0, 110, 255, 0.18)';
+            ctx.fillStyle = '#55b35c';
+            ctx.shadowColor = 'rgba(0,0,0,0.16)';
             ctx.shadowBlur = 20;
-            ctx.shadowOffsetY = 6;
+            ctx.shadowOffsetY = 4;
             ctx.beginPath();
-            ctx.moveTo(riverStart, riverY - riverHeight/2);
-            ctx.bezierCurveTo(riverStart + w*0.1, riverY - riverHeight/2 - 10, riverEnd - w*0.1, riverY - riverHeight/2 - 10, riverEnd, riverY - riverHeight/2);
-            ctx.lineTo(riverEnd, riverY + riverHeight/2);
-            ctx.bezierCurveTo(riverEnd - w*0.1, riverY + riverHeight/2 + 10, riverStart + w*0.1, riverY + riverHeight/2 + 10, riverStart, riverY + riverHeight/2);
-            ctx.closePath();
+            ctx.arc(treeBaseX, treeBaseY - 10, 50, 0, Math.PI * 2);
+            ctx.arc(treeBaseX - 30, treeBaseY + 10, 42, 0, Math.PI * 2);
+            ctx.arc(treeBaseX + 32, treeBaseY + 10, 44, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
 
-            // River highlights
-            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(riverStart + 20, riverY - riverHeight/2 + 20);
-            ctx.bezierCurveTo(riverStart + w*0.1, riverY - riverHeight/2 + 10, riverEnd - w*0.1, riverY - riverHeight/2 + 10, riverEnd - 20, riverY - riverHeight/2 + 20);
-            ctx.stroke();
+            // Ground platforms
+            const platformHeight = h * 0.18;
+            const leftPlat = {x: w * 0.04, y: h * 0.57, w: w * 0.34, h: platformHeight};
+            const rightPlat = {x: w * 0.62, y: h * 0.62, w: w * 0.32, h: platformHeight};
 
-            // Stones: 5 round stones in straight path
-            function drawStone(x, y, r) {
+            function drawPlatform(x, y, width, height) {
                 ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.18)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetY = 5;
-                const gradient = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, 1, x, y, r);
-                gradient.addColorStop(0, '#ffffff');
-                gradient.addColorStop(1, '#c4a678');
-                ctx.fillStyle = gradient;
+                ctx.fillStyle = '#88d671';
+                ctx.fillRect(x, y, width, height * 0.25);
+                ctx.strokeStyle = '#5ea649';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, width, height * 0.25);
+                ctx.fillStyle = '#cfa56f';
                 ctx.beginPath();
-                ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-            const stoneSpacing = (riverEnd - riverStart) / 6;
-            for (let i = 1; i <= 5; i++) {
-                const stoneX = riverStart + stoneSpacing * i;
-                const stoneY = riverY;
-                drawStone(stoneX, stoneY, 18);
-            }
-
-            // Right side: cartoon house on grass
-            const houseX = w * 0.85;
-            const houseY = h * 0.35;
-            const houseW = w * 0.15;
-            const houseH = h * 0.35;
-            ctx.save();
-            ctx.shadowColor = 'rgba(0,0,0,0.18)';
-            ctx.shadowBlur = 18;
-            ctx.shadowOffsetY = 8;
-            ctx.fillStyle = '#fff2d8';
-            ctx.beginPath();
-            ctx.roundRect(houseX - houseW / 2, houseY + 20, houseW, houseH, 20);
-            ctx.fill();
-            ctx.restore();
-
-            ctx.fillStyle = '#ffb573';
-            ctx.strokeStyle = '#d77b44';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(houseX - houseW / 2 - 8, houseY + 20);
-            ctx.lineTo(houseX, houseY - 15);
-            ctx.lineTo(houseX + houseW / 2 + 8, houseY + 20);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.fillStyle = '#f5d7a9';
-            ctx.fillRect(houseX - houseW / 2 + 12, houseY + 50, houseW - 24, houseH - 50);
-            ctx.strokeRect(houseX - houseW / 2 + 12, houseY + 50, houseW - 24, houseH - 50);
-
-            ctx.fillStyle = '#c96a3c';
-            ctx.fillRect(houseX - 16, houseY + 80, 32, 50);
-            ctx.strokeRect(houseX - 16, houseY + 80, 32, 50);
-
-            ctx.fillStyle = '#fff8ef';
-            const winW = 20;
-            const winH = 20;
-            ctx.fillRect(houseX + 10, houseY + 70, winW, winH);
-            ctx.fillRect(houseX + 10, houseY + 100, winW, winH);
-            ctx.strokeStyle = 'rgba(255,255,255,0.75)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(houseX + 10, houseY + 70, winW, winH);
-            ctx.strokeRect(houseX + 10, houseY + 100, winW, winH);
-
-            ctx.strokeStyle = '#b56b51';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(houseX + 10 + winW / 2, houseY + 70);
-            ctx.lineTo(houseX + 10 + winW / 2, houseY + 70 + winH);
-            ctx.moveTo(houseX + 10, houseY + 70 + winH / 2);
-            ctx.lineTo(houseX + 10 + winW, houseY + 70 + winH / 2);
-            ctx.moveTo(houseX + 10 + winW / 2, houseY + 100);
-            ctx.lineTo(houseX + 10 + winW / 2, houseY + 100 + winH);
-            ctx.moveTo(houseX + 10, houseY + 100 + winH / 2);
-            ctx.lineTo(houseX + 10 + winW, houseY + 100 + winH / 2);
-            ctx.stroke();
-
-            // Character: selected avatar on left near river
-            function drawChibi() {
-                const cx = w * 0.18;
-                const cy = h * 0.6;
-                const scale = Math.min(w, h) / 700;
-                const headR = 24 * scale;
-                const bodyW = 42 * scale;
-                const bodyH = 52 * scale;
-
-                ctx.save();
-                ctx.fillStyle = 'rgba(0,0,0,0.16)';
-                ctx.beginPath();
-                ctx.ellipse(cx, cy + bodyH * 0.7, bodyW * 0.7, 8 * scale, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = '#ffe4c4';
-                ctx.strokeStyle = '#c9895c';
-                ctx.lineWidth = 3 * scale;
-                ctx.beginPath();
-                ctx.roundRect(cx - bodyW / 2, cy + headR * 0.4, bodyW, bodyH, 16 * scale);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.fillStyle = '#fce1c5';
-                ctx.beginPath();
-                ctx.arc(cx, cy, headR, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.fillStyle = '#3c2a23';
-                ctx.beginPath();
-                ctx.arc(cx - 7 * scale, cy - 3 * scale, 5 * scale, 0, Math.PI * 2);
-                ctx.arc(cx + 7 * scale, cy - 3 * scale, 5 * scale, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(cx - 6 * scale, cy - 5 * scale, 2 * scale, 0, Math.PI * 2);
-                ctx.arc(cx + 8 * scale, cy - 5 * scale, 2 * scale, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.strokeStyle = '#8c5a35';
-                ctx.lineWidth = 2 * scale;
-                ctx.beginPath();
-                ctx.arc(cx, cy + 7 * scale, 5 * scale, 0, Math.PI, false);
-                ctx.stroke();
-
-                ctx.fillStyle = '#8c5a35';
-                ctx.beginPath();
-                ctx.moveTo(cx - headR + 8 * scale, cy - 8 * scale);
-                ctx.quadraticCurveTo(cx, cy - headR * 1.05, cx + headR - 8 * scale, cy - 8 * scale);
-                ctx.lineTo(cx + headR - 8 * scale, cy + 4 * scale);
-                ctx.quadraticCurveTo(cx, cy + 0.5 * scale, cx - headR + 8 * scale, cy + 4 * scale);
+                ctx.moveTo(x, y + height * 0.25);
+                ctx.lineTo(x, y + height);
+                ctx.lineTo(x + width, y + height);
+                ctx.lineTo(x + width, y + height * 0.25);
                 ctx.closePath();
                 ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+            }
+            drawPlatform(leftPlat.x, leftPlat.y, leftPlat.w, leftPlat.h);
+            drawPlatform(rightPlat.x, rightPlat.y, rightPlat.w, rightPlat.h);
 
-                ctx.fillStyle = '#ffe4c4';
-                ctx.beginPath();
-                ctx.roundRect(cx - bodyW / 2 - 6 * scale, cy + headR * 0.5, 12 * scale, 28 * scale, 8 * scale);
-                ctx.roundRect(cx + bodyW / 2 - 6 * scale, cy + headR * 0.5, 12 * scale, 28 * scale, 8 * scale);
-                ctx.fill();
+            // Water gap
+            const waterY = leftPlat.y + leftPlat.h * 0.15;
+            const waterHeight = h * 0.16;
+            const waterLeft = leftPlat.x + leftPlat.w * 0.88;
+            const waterRight = rightPlat.x + rightPlat.w * 0.06;
+            ctx.save();
+            const waterGrad = ctx.createLinearGradient(0, waterY, 0, waterY + waterHeight);
+            waterGrad.addColorStop(0, '#80d7ff');
+            waterGrad.addColorStop(1, '#3faeff');
+            ctx.fillStyle = waterGrad;
+            ctx.fillRect(waterLeft, waterY, waterRight - waterLeft, waterHeight);
+            ctx.restore();
 
-                ctx.fillStyle = '#f48f97';
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+            ctx.lineWidth = 4;
+            for (let i = 0; i < 4; i++) {
+                const y = waterY + 10 + i * 18;
                 ctx.beginPath();
-                ctx.roundRect(cx - bodyW * 0.42, cy + headR + bodyH * 0.43, 12 * scale, 10 * scale, 6 * scale);
-                ctx.roundRect(cx + bodyW * 0.2, cy + headR + bodyH * 0.43, 12 * scale, 10 * scale, 6 * scale);
+                ctx.arc(waterLeft + 16, y, 18, 0, Math.PI, false);
+                ctx.arc(waterRight - 16, y + 6, 18, 0, Math.PI, false);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // Path stones across gap
+            const stoneCount = 5;
+            const stoneWidth = 22;
+            for (let i = 0; i < stoneCount; i++) {
+                const x = waterLeft + (waterRight - waterLeft) * ((i + 1) / (stoneCount + 1));
+                const y = waterY + waterHeight * 0.45;
+                ctx.save();
+                ctx.fillStyle = '#e4d2b5';
+                ctx.shadowColor = 'rgba(0,0,0,0.16)';
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetY = 5;
+                ctx.beginPath();
+                ctx.ellipse(x, y, stoneWidth, stoneWidth * 0.8, 0, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             }
 
-            drawChibi();
+            // Small decorative bushes on platforms
+            function drawBush(cx, cy, size) {
+                ctx.save();
+                ctx.fillStyle = '#5bb050';
+                ctx.beginPath();
+                ctx.arc(cx, cy, size, 0, Math.PI * 2);
+                ctx.arc(cx + size * 0.7, cy - size * 0.3, size * 0.8, 0, Math.PI * 2);
+                ctx.arc(cx - size * 0.7, cy - size * 0.2, size * 0.9, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            drawBush(leftPlat.x + 50, leftPlat.y + 8, 18);
+            drawBush(rightPlat.x + 70, rightPlat.y + 8, 16);
+            drawBush(rightPlat.x + rightPlat.w - 60, rightPlat.y + 14, 14);
+
+            // Character on left platform
+            const charX = leftPlat.x + 60;
+            const charY = leftPlat.y - 12;
+            const scale = Math.min(w, h) / 700;
+            const headR = 26 * scale;
+            const bodyW = 48 * scale;
+            const bodyH = 62 * scale;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.14)';
+            ctx.beginPath();
+            ctx.ellipse(charX, charY + bodyH * 0.75, bodyW * 0.75, 10 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.fillStyle = '#fce3c6';
+            ctx.strokeStyle = '#c78d67';
+            ctx.lineWidth = 3 * scale;
+            ctx.beginPath();
+            ctx.roundRect(charX - bodyW / 2, charY + headR * 0.45, bodyW, bodyH, 18 * scale);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffe4c4';
+            ctx.beginPath();
+            ctx.arc(charX, charY, headR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#3c2a23';
+            ctx.beginPath();
+            ctx.arc(charX - 8 * scale, charY - 4 * scale, 5 * scale, 0, Math.PI * 2);
+            ctx.arc(charX + 8 * scale, charY - 4 * scale, 5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(charX - 7 * scale, charY - 5.5 * scale, 2 * scale, 0, Math.PI * 2);
+            ctx.arc(charX + 9 * scale, charY - 5.5 * scale, 2 * scale, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#8c5a35';
+            ctx.lineWidth = 2 * scale;
+            ctx.beginPath();
+            ctx.arc(charX, charY + 9 * scale, 5 * scale, 0, Math.PI, false);
+            ctx.stroke();
+
+            ctx.fillStyle = '#8c5a35';
+            ctx.beginPath();
+            ctx.moveTo(charX - headR + 10 * scale, charY - 8 * scale);
+            ctx.quadraticCurveTo(charX, charY - headR * 1.05, charX + headR - 10 * scale, charY - 8 * scale);
+            ctx.lineTo(charX + headR - 10 * scale, charY + 6 * scale);
+            ctx.quadraticCurveTo(charX, charY + 2 * scale, charX - headR + 10 * scale, charY + 6 * scale);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#ffe4c4';
+            ctx.beginPath();
+            ctx.roundRect(charX - bodyW / 2 - 6 * scale, charY + headR * 0.5, 12 * scale, 32 * scale, 8 * scale);
+            ctx.roundRect(charX + bodyW / 2 - 6 * scale, charY + headR * 0.5, 12 * scale, 32 * scale, 8 * scale);
+            ctx.fill();
+
+            ctx.fillStyle = '#f78f96';
+            ctx.beginPath();
+            ctx.roundRect(charX - bodyW * 0.42, charY + headR + bodyH * 0.42, 14 * scale, 12 * scale, 6 * scale);
+            ctx.roundRect(charX + bodyW * 0.25, charY + headR + bodyH * 0.42, 14 * scale, 12 * scale, 6 * scale);
+            ctx.fill();
+            ctx.restore();
+
             minigameTime += 1;
         }
 
