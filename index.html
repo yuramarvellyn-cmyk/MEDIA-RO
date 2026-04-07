@@ -1171,6 +1171,7 @@
             <div class="minigame-status" id="minigame-status">Tekan tombol untuk menyeberang sungai lewat bebatuan.</div>
             <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px; display:none;">🚶 Melintasi Sungai</button>
             <button class="btn-gold" id="quiz-btn" onclick="proceedToQuiz()" style="margin-top: 10px; display:none;">➡️ Lanjut ke Soal</button>
+            <button class="btn-gold" id="close-minigame-btn" onclick="closeMinigame()" style="margin-top: 10px; background: #ffb6d9; color: #2c5f7f;">⏹️ KEMBALI KE PAPAN</button>
         </div>
     </div>
 
@@ -1743,6 +1744,7 @@
             animationFrame: null,
             sprite: null
         };
+        let minigameTime = 0;
 
         function showMinigame() {
             const canvas = document.getElementById('minigame-canvas');
@@ -1776,6 +1778,7 @@
             overlay.classList.add('show');
             drawMinigame();
             
+            minigameTime = 0;
             const walkBtn = document.getElementById('walk-btn');
             walkBtn.disabled = false;
             walkBtn.style.display = 'inline-block';
@@ -1856,7 +1859,7 @@
             const segments = 6;
             for (let i = 0; i <= segments; i += 1) {
                 const t = i / segments;
-                const x = riverLeft + (riverRight - riverLeft) * t + Math.sin(time * 0.013 + t * 2.4) * 10;
+                const x = riverLeft + (riverRight - riverLeft) * t + Math.sin(minigameTime * 0.013 + t * 2.4) * 10;
                 const y = riverTop + (riverBottom - riverTop) * t;
                 riverPath.push({ x, y });
             }
@@ -1870,12 +1873,12 @@
             ctx.moveTo(riverPath[0].x - 42, riverPath[0].y - 16);
             for (let i = 1; i < riverPath.length; i += 1) {
                 const pt = riverPath[i];
-                ctx.lineTo(pt.x - 42 + Math.sin(time * 0.01 + i * 0.6) * 5, pt.y);
+                ctx.lineTo(pt.x - 42 + Math.sin(minigameTime * 0.01 + i * 0.6) * 5, pt.y);
             }
             ctx.lineTo(riverPath[riverPath.length - 1].x + 42, riverPath[riverPath.length - 1].y + 16);
             for (let i = riverPath.length - 1; i >= 0; i -= 1) {
                 const pt = riverPath[i];
-                ctx.lineTo(pt.x + 42 + Math.sin(time * 0.01 + i * 0.6 + 1.5) * 5, pt.y + 8);
+                ctx.lineTo(pt.x + 42 + Math.sin(minigameTime * 0.01 + i * 0.6 + 1.5) * 5, pt.y + 8);
             }
             ctx.closePath();
             ctx.fill();
@@ -1884,7 +1887,7 @@
             ctx.lineWidth = 3;
             for (let j = 0; j < 4; j += 1) {
                 ctx.beginPath();
-                const baseY = riverTop + 30 + j * 28 + Math.sin(time * 0.05 + j) * 8;
+                const baseY = riverTop + 30 + j * 28 + Math.sin(minigameTime * 0.05 + j) * 8;
                 ctx.moveTo(riverLeft + 16 + j * 28, baseY);
                 ctx.quadraticCurveTo(riverLeft + 28 + j * 28, baseY + 6, riverLeft + 42 + j * 28, baseY);
                 ctx.stroke();
@@ -2051,6 +2054,7 @@
             }
 
             drawChibi();
+            minigameTime += 1;
         }
 
         function closeMinigame() {
