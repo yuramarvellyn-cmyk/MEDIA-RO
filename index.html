@@ -1168,7 +1168,7 @@
             <div class="minigame-canvas-wrapper">
                 <canvas id="minigame-canvas" width="400" height="300"></canvas>
             </div>
-            <div class="minigame-status" id="minigame-status">Karakter akan bergerak otomatis menyeberang sungai.</div>
+            <div class="minigame-status" id="minigame-status">Tekan tombol untuk menyeberang sungai lewat bebatuan.</div>
             <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px; display:none;">🚶 Melintasi Sungai</button>
         </div>
     </div>
@@ -1776,10 +1776,10 @@
             drawMinigame();
             
             const walkBtn = document.getElementById('walk-btn');
-            walkBtn.disabled = true;
-            walkBtn.style.display = 'none';
-            document.getElementById('minigame-status').textContent = 'Karakter akan bergerak otomatis menyeberang sungai.';
-            walkCharacter();
+            walkBtn.disabled = false;
+            walkBtn.style.display = 'inline-block';
+            walkBtn.innerText = '🚶 Melintasi Sungai';
+            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk menyeberang sungai lewat bebatuan.';
         }
 
         function walkCharacter() {
