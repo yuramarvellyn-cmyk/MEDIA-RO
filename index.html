@@ -1168,8 +1168,8 @@
             <div class="minigame-canvas-wrapper">
                 <canvas id="minigame-canvas" width="400" height="300"></canvas>
             </div>
-            <div class="minigame-status" id="minigame-status">Tekan tombol untuk menyeberang sungai lewat bebatuan.</div>
-            <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px; display:none;">🚶 Melintasi Sungai</button>
+            <div class="minigame-status" id="minigame-status">Tekan tombol untuk berjalan melalui taman menuju rumah adat.</div>
+            <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px; display:none;">🚶 Menuju Rumah</button>
             <button class="btn-gold" id="quiz-btn" onclick="proceedToQuiz()" style="margin-top: 10px; display:none;">➡️ Lanjut ke Soal</button>
         </div>
     </div>
@@ -1781,9 +1781,9 @@
             const walkBtn = document.getElementById('walk-btn');
             walkBtn.disabled = false;
             walkBtn.style.display = 'inline-block';
-            walkBtn.innerText = '🚶 Melintasi Sungai';
+            walkBtn.innerText = '🚶 Menuju Rumah';
             document.getElementById('quiz-btn').style.display = 'none';
-            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk menyeberang sungai lewat bebatuan.';
+            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk berjalan melalui taman menuju rumah adat.';
         }
 
         function walkCharacter() {
@@ -1822,9 +1822,9 @@
                 }
 
                 if (minigameState.pathIndex < minigameState.stones.length) {
-                    document.getElementById('minigame-status').textContent = `Melompat ke batu ${minigameState.pathIndex + 1}...`;
+                    document.getElementById('minigame-status').textContent = `Berjalan ke batu taman ${minigameState.pathIndex + 1}...`;
                 } else {
-                    document.getElementById('minigame-status').textContent = 'Menuju rumah adat setelah menyeberang sungai.';
+                    document.getElementById('minigame-status').textContent = 'Menuju rumah adat melalui taman.';
                 }
                 minigameState.animationFrame = requestAnimationFrame(animatePath);
                 return;
@@ -1913,37 +1913,37 @@
             drawPlatform(leftPlat.x, leftPlat.y, leftPlat.w, leftPlat.h);
             drawPlatform(rightPlat.x, rightPlat.y, rightPlat.w, rightPlat.h);
 
-            // Water gap
-            const waterY = leftPlat.y + leftPlat.h * 0.15;
-            const waterHeight = h * 0.16;
-            const waterLeft = leftPlat.x + leftPlat.w * 0.88;
-            const waterRight = rightPlat.x + rightPlat.w * 0.06;
+            // Meadow path between platforms
+            const pathY = leftPlat.y + leftPlat.h * 0.15;
+            const pathHeight = h * 0.16;
+            const pathLeft = leftPlat.x + leftPlat.w * 0.88;
+            const pathRight = rightPlat.x + rightPlat.w * 0.06;
             ctx.save();
-            const waterGrad = ctx.createLinearGradient(0, waterY, 0, waterY + waterHeight);
-            waterGrad.addColorStop(0, '#80d7ff');
-            waterGrad.addColorStop(1, '#3faeff');
-            ctx.fillStyle = waterGrad;
-            ctx.fillRect(waterLeft, waterY, waterRight - waterLeft, waterHeight);
+            ctx.fillStyle = '#d5edb5';
+            ctx.fillRect(pathLeft, pathY, pathRight - pathLeft, pathHeight);
+            ctx.fillStyle = '#eaf6d7';
+            ctx.fillRect(pathLeft + 8, pathY + 10, pathRight - pathLeft - 16, pathHeight - 20);
             ctx.restore();
 
             ctx.save();
-            ctx.strokeStyle = 'rgba(255,255,255,0.65)';
-            ctx.lineWidth = 4;
+            ctx.fillStyle = '#f9e1a9';
             for (let i = 0; i < 4; i++) {
-                const y = waterY + 10 + i * 18;
+                const fx = pathLeft + 30 + i * 95;
+                const fy = pathY + 22 + (i % 2) * 18;
                 ctx.beginPath();
-                ctx.arc(waterLeft + 16, y, 18, 0, Math.PI, false);
-                ctx.arc(waterRight - 16, y + 6, 18, 0, Math.PI, false);
-                ctx.stroke();
+                ctx.arc(fx, fy, 10, 0, Math.PI * 2);
+                ctx.arc(fx + 14, fy - 6, 8, 0, Math.PI * 2);
+                ctx.arc(fx - 12, fy - 8, 8, 0, Math.PI * 2);
+                ctx.fill();
             }
             ctx.restore();
 
-            // Path stones across gap
+            // Path stones through the garden
             const stoneCount = 5;
             const stoneWidth = 22;
             for (let i = 0; i < stoneCount; i++) {
-                const x = waterLeft + (waterRight - waterLeft) * ((i + 1) / (stoneCount + 1));
-                const y = waterY + waterHeight * 0.45;
+                const x = pathLeft + (pathRight - pathLeft) * ((i + 1) / (stoneCount + 1));
+                const y = pathY + pathHeight * 0.5;
                 ctx.save();
                 ctx.fillStyle = '#e4d2b5';
                 ctx.shadowColor = 'rgba(0,0,0,0.16)';
