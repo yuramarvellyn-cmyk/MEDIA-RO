@@ -472,6 +472,47 @@
             line-height: 1.4;
         }
 
+        /* Mini-Game Overlay */
+        #minigame-overlay {
+            display: none;
+        }
+
+        #minigame-overlay.show {
+            display: flex !important;
+        }
+
+        .minigame-container {
+            background: var(--paper);
+            border: clamp(5px, 1.5vw, 8px) solid var(--wood);
+            border-radius: clamp(12px, 3vw, 20px);
+            padding: clamp(15px, 4vw, 20px);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .minigame-canvas-wrapper {
+            background: linear-gradient(to bottom, #87CEEB, #90EE90);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: clamp(15px, 3vw, 20px) 0;
+            position: relative;
+        }
+
+        #minigame-canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: linear-gradient(to bottom, #87CEEB, #90EE90);
+        }
+
+        .minigame-status {
+            color: #5EB3D6;
+            font-weight: bold;
+            font-size: clamp(12px, 2.5vw, 14px);
+            margin: clamp(10px, 2vw, 15px) 0;
+        }
+
         #quiz-overlay {
             display: none;
         }
@@ -1120,6 +1161,19 @@
         </div>
     </main>
 
+    <!-- MINI-GAME OVERLAY -->
+    <div id="minigame-overlay" class="screen-overlay">
+        <div class="minigame-container">
+            <h2 style="color: #5EB3D6; margin-bottom: clamp(10px, 2vw, 15px);">⚔️ Petualangan Singkat</h2>
+            <div class="minigame-canvas-wrapper">
+                <canvas id="minigame-canvas" width="400" height="300"></canvas>
+            </div>
+            <div class="minigame-status" id="minigame-status">Tekan tombol untuk memulai petualangan!</div>
+            <button class="btn-gold" id="start-adventure-btn" onclick="startAdventure()" style="margin-top: 15px; display:none;">🚀 Mulai Petualangan</button>
+            <button class="btn-gold" id="quiz-btn" onclick="proceedToQuiz()" style="margin-top: 10px; display:none;">➡️ Lanjut ke Soal</button>
+        </div>
+    </div>
+
     <!-- AREA PREVIEW OVERLAY -->
     <div id="area-preview-overlay" class="screen-overlay">
         <div class="content-card">
@@ -1163,7 +1217,184 @@
             penyihir: `<img src="https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/SUMBAR.png" style="width: 100%; height: auto; max-width: 120px; display: block; margin: 0 auto;" alt="SUMBAR"/>`
         };
 
-        const charSpriteUrls = {
+        const minigameState = {
+            active: false,
+            character: { x: 50, y: 200 },
+            obstacles: [],
+            goal: { x: 350, y: 200 },
+            speed: 3,
+            isAnimating: false,
+            animationFrame: null,
+            progress: 0,
+            maxProgress: 100
+        };
+
+        function showMinigame() {
+            const overlay = document.getElementById('minigame-overlay');
+            overlay.classList.add('show');
+
+            // Reset state
+            minigameState.active = true;
+            minigameState.character = { x: 50, y: 200 };
+            minigameState.progress = 0;
+            minigameState.isAnimating = false;
+            minigameState.obstacles = [
+                { x: 150, y: 180, width: 20, height: 40, type: 'rock' },
+                { x: 250, y: 190, width: 25, height: 20, type: 'log' },
+                { x: 320, y: 185, width: 15, height: 30, type: 'bush' }
+            ];
+
+            drawMinigame();
+            document.getElementById('minigame-status').textContent = 'Tekan tombol untuk memulai petualangan!';
+            document.getElementById('start-adventure-btn').style.display = 'inline-block';
+            document.getElementById('quiz-btn').style.display = 'none';
+        }
+
+        function startAdventure() {
+            if (minigameState.isAnimating) return;
+            minigameState.isAnimating = true;
+            document.getElementById('start-adventure-btn').disabled = true;
+            document.getElementById('minigame-status').textContent = 'Petualangan dimulai...';
+            animateAdventure();
+        }
+
+        function animateAdventure() {
+            if (!minigameState.active) return;
+
+            // Move character forward
+            minigameState.character.x += minigameState.speed;
+            minigameState.progress = Math.min(minigameState.maxProgress,
+                ((minigameState.character.x - 50) / (minigameState.goal.x - 50)) * 100);
+
+            // Check for obstacles
+            for (let obstacle of minigameState.obstacles) {
+                if (Math.abs(minigameState.character.x - obstacle.x) < 20) {
+                    document.getElementById('minigame-status').textContent = `Menghindari ${obstacle.type === 'rock' ? 'batu' : obstacle.type === 'log' ? 'kayu' : 'semak'}...`;
+                    minigameState.character.y = obstacle.y - 30; // Jump over obstacle
+                    setTimeout(() => {
+                        minigameState.character.y = 200; // Land back
+                    }, 300);
+                    break;
+                }
+            }
+
+            drawMinigame();
+
+            if (minigameState.progress >= 100) {
+                // Adventure complete
+                document.getElementById('minigame-status').textContent = 'Petualangan selesai! Tekan tombol untuk lanjut ke soal.';
+                document.getElementById('start-adventure-btn').style.display = 'none';
+                document.getElementById('quiz-btn').style.display = 'inline-block';
+                document.getElementById('quiz-btn').disabled = false;
+                minigameState.isAnimating = false;
+                return;
+            }
+
+            minigameState.animationFrame = requestAnimationFrame(animateAdventure);
+        }
+
+        function drawMinigame() {
+            const canvas = document.getElementById('minigame-canvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, w, h);
+
+            // Background
+            const bg = ctx.createLinearGradient(0, 0, 0, h);
+            bg.addColorStop(0, '#bfe9ff');
+            bg.addColorStop(1, '#d8f5e4');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, w, h);
+
+            // Ground
+            ctx.fillStyle = '#a8e6a3';
+            ctx.fillRect(0, h * 0.7, w, h * 0.3);
+
+            // Path
+            ctx.fillStyle = '#cfa56f';
+            ctx.fillRect(0, h * 0.75, w, 10);
+
+            // Goal flag
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(minigameState.goal.x - 5, minigameState.goal.y - 40, 10, 40);
+            ctx.fillStyle = '#ffd93d';
+            ctx.beginPath();
+            ctx.moveTo(minigameState.goal.x, minigameState.goal.y - 40);
+            ctx.lineTo(minigameState.goal.x + 20, minigameState.goal.y - 30);
+            ctx.lineTo(minigameState.goal.x, minigameState.goal.y - 20);
+            ctx.closePath();
+            ctx.fill();
+
+            // Obstacles
+            minigameState.obstacles.forEach(obstacle => {
+                ctx.save();
+                if (obstacle.type === 'rock') {
+                    ctx.fillStyle = '#8d8686';
+                    ctx.beginPath();
+                    ctx.arc(obstacle.x, obstacle.y, obstacle.width/2, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (obstacle.type === 'log') {
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(obstacle.x - obstacle.width/2, obstacle.y - obstacle.height/2, obstacle.width, obstacle.height);
+                } else if (obstacle.type === 'bush') {
+                    ctx.fillStyle = '#4a7c59';
+                    ctx.beginPath();
+                    ctx.arc(obstacle.x, obstacle.y, obstacle.width/2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            });
+
+            // Character (simple sprite)
+            const char = minigameState.character;
+            ctx.save();
+            ctx.fillStyle = '#ffe4c4';
+            ctx.beginPath();
+            ctx.arc(char.x, char.y - 15, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#c9895c';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Body
+            ctx.fillStyle = '#7ec8e3';
+            ctx.fillRect(char.x - 8, char.y - 5, 16, 25);
+            ctx.strokeRect(char.x - 8, char.y - 5, 16, 25);
+
+            // Legs
+            ctx.fillStyle = '#5eb3d6';
+            ctx.fillRect(char.x - 6, char.y + 20, 4, 15);
+            ctx.fillRect(char.x + 2, char.y + 20, 4, 15);
+            ctx.restore();
+
+            // Progress bar
+            ctx.fillStyle = '#ddd';
+            ctx.fillRect(20, 20, w - 40, 10);
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(20, 20, (w - 40) * (minigameState.progress / 100), 10);
+            ctx.strokeStyle = '#333';
+            ctx.strokeRect(20, 20, w - 40, 10);
+        }
+
+        function closeMinigame() {
+            const overlay = document.getElementById('minigame-overlay');
+            overlay.classList.remove('show');
+            minigameState.active = false;
+            if (minigameState.animationFrame) {
+                cancelAnimationFrame(minigameState.animationFrame);
+            }
+            document.getElementById('minigame-status').textContent = '';
+            document.getElementById('start-adventure-btn').style.display = 'none';
+            document.getElementById('quiz-btn').style.display = 'none';
+        }
+
+        function proceedToQuiz() {
+            closeMinigame();
+            showQuiz();
+        }
             jawa: 'https://raw.githubusercontent.com/AYAA-lab/Game-Resonance-Odyssey/4d1f20624072c139e13a3200d17f9d7947814b12/JAWA.png',
             srikandi: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/KALIMANTAN.png',
             prajurit: 'https://raw.githubusercontent.com/riyanarahman320/c2FraXQgdGF1dSwgZ2EgYWRpbCByYXNhbnlh/1ebe956e0bd17ef70dfd976a88c07dc5efe4664e/LAMPUNG.png',
@@ -1680,8 +1911,8 @@
             const overlay = document.getElementById('area-preview-overlay');
             overlay.classList.remove('show');
             
-            // Go directly to quiz
-            showQuiz();
+            // Show mini-game adventure first, then quiz
+            showMinigame();
         }
 
         function updateControlButtons() {
