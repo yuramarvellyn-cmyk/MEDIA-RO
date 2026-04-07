@@ -1171,7 +1171,6 @@
             <div class="minigame-status" id="minigame-status">Tekan tombol untuk menyeberang sungai lewat bebatuan.</div>
             <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px; display:none;">🚶 Melintasi Sungai</button>
             <button class="btn-gold" id="quiz-btn" onclick="proceedToQuiz()" style="margin-top: 10px; display:none;">➡️ Lanjut ke Soal</button>
-            <button class="btn-gold" id="close-minigame-btn" onclick="closeMinigame()" style="margin-top: 10px; background: #ffb6d9; color: #2c5f7f;">⏹️ KEMBALI KE PAPAN</button>
         </div>
     </div>
 
@@ -1750,24 +1749,24 @@
             const canvas = document.getElementById('minigame-canvas');
             const overlay = document.getElementById('minigame-overlay');
             
-            const width = Math.min(400, window.innerWidth - 60);
-            const height = Math.min(300, window.innerHeight - 280);
+            const width = Math.min(450, window.innerWidth - 60);
+            const height = Math.min(320, window.innerHeight - 260);
             canvas.width = width;
             canvas.height = height;
 
             minigameState.active = true;
-            minigameState.charX = width * 0.12;
-            minigameState.charY = height / 2;
+            minigameState.charX = width * 0.16;
+            minigameState.charY = height * 0.58;
             minigameState.riverStart = width * 0.35;
             minigameState.riverEnd = width * 0.65;
-            minigameState.houseX = width * 0.88;
+            minigameState.houseX = width * 0.78;
             minigameState.stones = [
-                { x: minigameState.riverStart + 20, y: height / 2 - 18 },
-                { x: minigameState.riverStart + 50, y: height / 2 + 12 },
-                { x: minigameState.riverStart + 85, y: height / 2 - 12 },
-                { x: minigameState.riverStart + 115, y: height / 2 + 18 }
+                { x: minigameState.riverStart + 25, y: height * 0.48 },
+                { x: minigameState.riverStart + 70, y: height * 0.53 },
+                { x: minigameState.riverStart + 115, y: height * 0.45 },
+                { x: minigameState.riverStart + 160, y: height * 0.56 }
             ];
-            minigameState.path = [...minigameState.stones, { x: minigameState.houseX - 20, y: height / 2 }];
+            minigameState.path = [...minigameState.stones, { x: minigameState.houseX - 30, y: height * 0.58 }];
             minigameState.pathIndex = 0;
             minigameState.isAnimating = false;
             minigameState.animationFrame = null;
@@ -1843,212 +1842,192 @@
             const w = canvas.width;
             const h = canvas.height;
 
-            const grassGradient = ctx.createLinearGradient(0, 0, 0, h);
-            grassGradient.addColorStop(0, '#cff9c8');
-            grassGradient.addColorStop(1, '#91d77c');
-            ctx.fillStyle = grassGradient;
+            const bg = ctx.createLinearGradient(0, 0, 0, h);
+            bg.addColorStop(0, '#b3e5ff');
+            bg.addColorStop(0.38, '#d6f8d3');
+            bg.addColorStop(1, '#d6f3b7');
+            ctx.fillStyle = bg;
             ctx.fillRect(0, 0, w, h);
 
-            const riverLeft = minigameState.riverStart;
-            const riverRight = minigameState.riverEnd;
-            const riverTop = h * 0.22;
-            const riverBottom = h * 0.78;
-            const midY = (riverTop + riverBottom) / 2;
-
-            const riverPath = [];
-            const segments = 6;
-            for (let i = 0; i <= segments; i += 1) {
-                const t = i / segments;
-                const x = riverLeft + (riverRight - riverLeft) * t + Math.sin(minigameTime * 0.013 + t * 2.4) * 10;
-                const y = riverTop + (riverBottom - riverTop) * t;
-                riverPath.push({ x, y });
-            }
-
-            const waterGradient = ctx.createLinearGradient(riverLeft, riverTop, riverRight, riverBottom);
-            waterGradient.addColorStop(0, '#79caff');
-            waterGradient.addColorStop(0.4, '#4ea5ff');
-            waterGradient.addColorStop(1, '#a2e0ff');
-            ctx.fillStyle = waterGradient;
+            ctx.save();
+            ctx.fillStyle = 'rgba(183, 236, 143, 0.78)';
             ctx.beginPath();
-            ctx.moveTo(riverPath[0].x - 42, riverPath[0].y - 16);
-            for (let i = 1; i < riverPath.length; i += 1) {
-                const pt = riverPath[i];
-                ctx.lineTo(pt.x - 42 + Math.sin(minigameTime * 0.01 + i * 0.6) * 5, pt.y);
-            }
-            ctx.lineTo(riverPath[riverPath.length - 1].x + 42, riverPath[riverPath.length - 1].y + 16);
-            for (let i = riverPath.length - 1; i >= 0; i -= 1) {
-                const pt = riverPath[i];
-                ctx.lineTo(pt.x + 42 + Math.sin(minigameTime * 0.01 + i * 0.6 + 1.5) * 5, pt.y + 8);
-            }
+            ctx.moveTo(0, h * 0.16);
+            ctx.quadraticCurveTo(w * 0.08, h * 0.05, w * 0.2, h * 0.2);
+            ctx.lineTo(w * 0.2, h * 0.88);
+            ctx.quadraticCurveTo(w * 0.08, h * 0.96, 0, h * 0.9);
             ctx.closePath();
             ctx.fill();
+            ctx.restore();
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-            ctx.lineWidth = 3;
-            for (let j = 0; j < 4; j += 1) {
-                ctx.beginPath();
-                const baseY = riverTop + 30 + j * 28 + Math.sin(minigameTime * 0.05 + j) * 8;
-                ctx.moveTo(riverLeft + 16 + j * 28, baseY);
-                ctx.quadraticCurveTo(riverLeft + 28 + j * 28, baseY + 6, riverLeft + 42 + j * 28, baseY);
-                ctx.stroke();
-            }
+            const riverTop = h * 0.18;
+            const riverBottom = h * 0.82;
+            const ctrl = w * 0.15;
+            ctx.save();
+            const riverGradient = ctx.createLinearGradient(minigameState.riverStart, riverTop, minigameState.riverEnd, riverBottom);
+            riverGradient.addColorStop(0, '#7cc8ff');
+            riverGradient.addColorStop(1, '#3e88ff');
+            ctx.fillStyle = riverGradient;
+            ctx.shadowColor = 'rgba(0, 110, 255, 0.18)';
+            ctx.shadowBlur = 22;
+            ctx.shadowOffsetY = 6;
+            ctx.beginPath();
+            ctx.moveTo(minigameState.riverStart, riverTop);
+            ctx.bezierCurveTo(minigameState.riverStart + ctrl, h * 0.28, minigameState.riverEnd - ctrl, h * 0.31, minigameState.riverEnd, h * 0.36);
+            ctx.lineTo(minigameState.riverEnd + 18, h * 0.68);
+            ctx.bezierCurveTo(minigameState.riverEnd - ctrl, h * 0.8, minigameState.riverStart + ctrl, h * 0.74, minigameState.riverStart, riverBottom);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.56)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(minigameState.riverStart + 24, riverTop + 12);
+            ctx.bezierCurveTo(minigameState.riverStart + ctrl, h * 0.24, minigameState.riverEnd - ctrl, h * 0.3, minigameState.riverEnd - 26, h * 0.38);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(minigameState.riverStart + 18, riverTop + 70);
+            ctx.bezierCurveTo(minigameState.riverStart + ctrl * 0.8, h * 0.46, minigameState.riverEnd - ctrl * 0.8, h * 0.53, minigameState.riverEnd - 34, h * 0.64);
+            ctx.stroke();
 
             function drawStone(x, y, r) {
                 ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.2)';
-                ctx.shadowBlur = 12;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 4;
-                const stoneGradient = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, 4, x, y, r);
-                stoneGradient.addColorStop(0, '#fdf3d8');
-                stoneGradient.addColorStop(1, '#d7b084');
-                ctx.fillStyle = stoneGradient;
+                ctx.shadowColor = 'rgba(0,0,0,0.18)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 5;
+                const gradient = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, 1, x, y, r);
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(1, '#c4a678');
+                ctx.fillStyle = gradient;
                 ctx.beginPath();
-                ctx.ellipse(x, y, r, r * 0.7, 0.2, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                ctx.beginPath();
-                ctx.ellipse(x - r * 0.22, y - r * 0.24, r * 0.28, r * 0.16, 0, 0, Math.PI * 2);
+                ctx.ellipse(x, y, r, r * 0.75, 0, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             }
+            minigameState.stones.forEach((stone, idx) => drawStone(stone.x, stone.y, 17 + idx * 0.4));
 
-            minigameState.stones.forEach(stone => drawStone(stone.x, stone.y, 18));
-
-            const houseBaseX = minigameState.houseX;
-            const houseBaseY = h * 0.28;
-            const houseWidth = 110;
-            const houseHeight = 80;
-
+            const houseX = minigameState.houseX;
+            const houseY = h * 0.24;
+            const houseW = w * 0.26;
+            const houseH = h * 0.4;
             ctx.save();
             ctx.shadowColor = 'rgba(0,0,0,0.18)';
-            ctx.shadowBlur = 15;
-            ctx.shadowOffsetY = 6;
+            ctx.shadowBlur = 18;
+            ctx.shadowOffsetY = 8;
+            ctx.fillStyle = '#fff2d8';
             ctx.beginPath();
-            ctx.ellipse(houseBaseX, houseBaseY + houseHeight * 0.55, 52, 12, 0, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(67, 49, 21, 0.16)';
+            ctx.roundRect(houseX - houseW / 2, houseY + 34, houseW, houseH, 24);
             ctx.fill();
             ctx.restore();
 
-            ctx.save();
-            ctx.fillStyle = '#ffdca2';
-            ctx.strokeStyle = '#c28f5f';
+            ctx.fillStyle = '#ffb573';
+            ctx.strokeStyle = '#d77b44';
             ctx.lineWidth = 4;
             ctx.beginPath();
-            ctx.roundRect(houseBaseX - houseWidth / 2, houseBaseY, houseWidth, houseHeight * 0.62, 22);
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.fillStyle = '#ff9a6c';
-            ctx.beginPath();
-            ctx.moveTo(houseBaseX - houseWidth / 2 - 6, houseBaseY + 18);
-            ctx.quadraticCurveTo(houseBaseX, houseBaseY - 42, houseBaseX + houseWidth / 2 + 6, houseBaseY + 18);
-            ctx.lineTo(houseBaseX + houseWidth / 2 + 6, houseBaseY + 38);
-            ctx.lineTo(houseBaseX - houseWidth / 2 - 6, houseBaseY + 38);
+            ctx.moveTo(houseX - houseW / 2 - 10, houseY + 34);
+            ctx.lineTo(houseX, houseY - 22);
+            ctx.lineTo(houseX + houseW / 2 + 10, houseY + 34);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
-            ctx.restore();
 
-            ctx.fillStyle = '#f6e3c6';
-            ctx.beginPath();
-            ctx.roundRect(houseBaseX - 24, houseBaseY + 28, 48, 60, 14);
-            ctx.fill();
-            ctx.strokeStyle = '#c28f5f';
-            ctx.lineWidth = 3;
-            ctx.stroke();
+            ctx.fillStyle = '#f5d7a9';
+            ctx.fillRect(houseX - houseW / 2 + 18, houseY + 74, houseW - 36, houseH - 74);
+            ctx.strokeRect(houseX - houseW / 2 + 18, houseY + 74, houseW - 36, houseH - 74);
 
-            ctx.fillStyle = '#fff8e4';
-            ctx.fillRect(houseBaseX + 28, houseBaseY + 30, 36, 36);
-            ctx.strokeRect(houseBaseX + 28, houseBaseY + 30, 36, 36);
-            ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillStyle = '#c96a3c';
+            ctx.fillRect(houseX - 24, houseY + 106, 48, 68);
+            ctx.strokeRect(houseX - 24, houseY + 106, 48, 68);
+
+            ctx.fillStyle = '#fff8ef';
+            const winW = 30;
+            const winH = 30;
+            ctx.fillRect(houseX + 16, houseY + 94, winW, winH);
+            ctx.fillRect(houseX + 16, houseY + 136, winW, winH);
+            ctx.strokeStyle = 'rgba(255,255,255,0.75)';
             ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(houseBaseX + 28, houseBaseY + 48);
-            ctx.lineTo(houseBaseX + 64, houseBaseY + 48);
-            ctx.moveTo(houseBaseX + 46, houseBaseY + 30);
-            ctx.lineTo(houseBaseX + 46, houseBaseY + 66);
-            ctx.stroke();
+            ctx.strokeRect(houseX + 16, houseY + 94, winW, winH);
+            ctx.strokeRect(houseX + 16, houseY + 136, winW, winH);
 
-            ctx.fillStyle = '#e5b37c';
+            ctx.strokeStyle = '#b56b51';
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.roundRect(houseBaseX - 18, houseBaseY + 58, 14, 24, 8);
-            ctx.roundRect(houseBaseX + 8, houseBaseY + 58, 14, 24, 8);
-            ctx.fill();
+            ctx.moveTo(houseX + 16 + winW / 2, houseY + 94);
+            ctx.lineTo(houseX + 16 + winW / 2, houseY + 94 + winH);
+            ctx.moveTo(houseX + 16, houseY + 94 + winH / 2);
+            ctx.lineTo(houseX + 16 + winW, houseY + 94 + winH / 2);
+            ctx.moveTo(houseX + 16 + winW / 2, houseY + 136);
+            ctx.lineTo(houseX + 16 + winW / 2, houseY + 136 + winH);
+            ctx.moveTo(houseX + 16, houseY + 136 + winH / 2);
+            ctx.lineTo(houseX + 16 + winW, houseY + 136 + winH / 2);
             ctx.stroke();
 
             function drawChibi() {
                 const cx = minigameState.charX;
                 const cy = minigameState.charY;
-                const scale = Math.min(w, h) / 1200;
-                const headR = 28 * scale;
-                const bodyW = 32 * scale;
-                const bodyH = 44 * scale;
+                const scale = Math.min(w, h) / 700;
+                const headR = 24 * scale;
+                const bodyW = 42 * scale;
+                const bodyH = 52 * scale;
 
                 ctx.save();
                 ctx.fillStyle = 'rgba(0,0,0,0.16)';
                 ctx.beginPath();
-                ctx.ellipse(cx, cy + bodyH * 0.6, bodyW * 0.8, 9 * scale, 0, 0, Math.PI * 2);
+                ctx.ellipse(cx, cy + bodyH * 0.7, bodyW * 0.7, 8 * scale, 0, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.fillStyle = '#ffe1c8';
-                ctx.strokeStyle = '#c28f5f';
+                ctx.fillStyle = '#ffe4c4';
+                ctx.strokeStyle = '#c9895c';
                 ctx.lineWidth = 3 * scale;
                 ctx.beginPath();
-                ctx.roundRect(cx - bodyW / 2, cy + headR * 0.4, bodyW, bodyH, 18 * scale);
+                ctx.roundRect(cx - bodyW / 2, cy + headR * 0.4, bodyW, bodyH, 16 * scale);
                 ctx.fill();
                 ctx.stroke();
 
-                ctx.fillStyle = '#ffeddb';
+                ctx.fillStyle = '#fce1c5';
                 ctx.beginPath();
                 ctx.arc(cx, cy, headR, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.stroke();
 
-                ctx.fillStyle = 'rgba(255, 135, 120, 0.35)';
+                ctx.fillStyle = '#3c2a23';
                 ctx.beginPath();
-                ctx.arc(cx - 10 * scale, cy + 4 * scale, 7 * scale, 0, Math.PI * 2);
-                ctx.arc(cx + 10 * scale, cy + 4 * scale, 7 * scale, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = '#3b2b24';
-                ctx.beginPath();
-                ctx.arc(cx - 8 * scale, cy - 2 * scale, 6 * scale, 0, Math.PI * 2);
-                ctx.arc(cx + 8 * scale, cy - 2 * scale, 6 * scale, 0, Math.PI * 2);
+                ctx.arc(cx - 7 * scale, cy - 3 * scale, 5 * scale, 0, Math.PI * 2);
+                ctx.arc(cx + 7 * scale, cy - 3 * scale, 5 * scale, 0, Math.PI * 2);
                 ctx.fill();
 
                 ctx.fillStyle = '#fff';
                 ctx.beginPath();
-                ctx.arc(cx - 6 * scale, cy - 4 * scale, 2 * scale, 0, Math.PI * 2);
-                ctx.arc(cx + 10 * scale, cy - 4 * scale, 2 * scale, 0, Math.PI * 2);
+                ctx.arc(cx - 6 * scale, cy - 5 * scale, 2 * scale, 0, Math.PI * 2);
+                ctx.arc(cx + 8 * scale, cy - 5 * scale, 2 * scale, 0, Math.PI * 2);
                 ctx.fill();
 
-                ctx.strokeStyle = '#8b5a2f';
-                ctx.lineWidth = 3 * scale;
+                ctx.strokeStyle = '#8c5a35';
+                ctx.lineWidth = 2 * scale;
                 ctx.beginPath();
-                ctx.arc(cx, cy + 11 * scale, 6 * scale, 0, Math.PI, false);
+                ctx.arc(cx, cy + 7 * scale, 5 * scale, 0, Math.PI, false);
                 ctx.stroke();
 
                 ctx.fillStyle = '#8c5a35';
                 ctx.beginPath();
-                ctx.moveTo(cx - headR + 8 * scale, cy - 5 * scale);
-                ctx.quadraticCurveTo(cx, cy - headR * 1.05, cx + headR - 8 * scale, cy - 5 * scale);
-                ctx.lineTo(cx + headR - 8 * scale, cy + 9 * scale);
-                ctx.quadraticCurveTo(cx, cy + 4 * scale, cx - headR + 8 * scale, cy + 9 * scale);
+                ctx.moveTo(cx - headR + 8 * scale, cy - 8 * scale);
+                ctx.quadraticCurveTo(cx, cy - headR * 1.05, cx + headR - 8 * scale, cy - 8 * scale);
+                ctx.lineTo(cx + headR - 8 * scale, cy + 4 * scale);
+                ctx.quadraticCurveTo(cx, cy + 0.5 * scale, cx - headR + 8 * scale, cy + 4 * scale);
                 ctx.closePath();
                 ctx.fill();
 
-                ctx.fillStyle = '#ffe1c8';
+                ctx.fillStyle = '#ffe4c4';
                 ctx.beginPath();
-                ctx.roundRect(cx - bodyW / 2 - 7 * scale, cy + headR * 0.5, 14 * scale, 28 * scale, 8 * scale);
-                ctx.roundRect(cx + bodyW / 2 - 7 * scale, cy + headR * 0.5, 14 * scale, 28 * scale, 8 * scale);
+                ctx.roundRect(cx - bodyW / 2 - 6 * scale, cy + headR * 0.5, 12 * scale, 28 * scale, 8 * scale);
+                ctx.roundRect(cx + bodyW / 2 - 6 * scale, cy + headR * 0.5, 12 * scale, 28 * scale, 8 * scale);
                 ctx.fill();
 
                 ctx.fillStyle = '#f48f97';
                 ctx.beginPath();
-                ctx.roundRect(cx - bodyW * 0.35, cy + headR + bodyH * 0.42, 12 * scale, 10 * scale, 6 * scale);
-                ctx.roundRect(cx + bodyW * 0.23, cy + headR + bodyH * 0.42, 12 * scale, 10 * scale, 6 * scale);
+                ctx.roundRect(cx - bodyW * 0.42, cy + headR + bodyH * 0.43, 12 * scale, 10 * scale, 6 * scale);
+                ctx.roundRect(cx + bodyW * 0.2, cy + headR + bodyH * 0.43, 12 * scale, 10 * scale, 6 * scale);
                 ctx.fill();
                 ctx.restore();
             }
