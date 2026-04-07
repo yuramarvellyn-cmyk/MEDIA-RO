@@ -1389,14 +1389,14 @@
             // Character
             const char = minigameState.character;
             if (minigameState.spriteLoaded && minigameState.sprite) {
-                const spriteWidth = 40;
-                const spriteHeight = 50;
-                ctx.drawImage(minigameState.sprite, char.x - spriteWidth / 2, char.y - spriteHeight - 10, spriteWidth, spriteHeight);
+                const spriteWidth = 60;
+                const spriteHeight = 80;
+                ctx.drawImage(minigameState.sprite, char.x - spriteWidth / 2, char.y - spriteHeight - 5, spriteWidth, spriteHeight);
             } else {
                 ctx.save();
                 ctx.fillStyle = '#ffe4c4';
                 ctx.beginPath();
-                ctx.arc(char.x, char.y - 15, 12, 0, Math.PI * 2);
+                ctx.arc(char.x, char.y - 20, 16, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.strokeStyle = '#c9895c';
                 ctx.lineWidth = 2;
@@ -1404,8 +1404,8 @@
 
                 // Body
                 ctx.fillStyle = '#7ec8e3';
-                ctx.fillRect(char.x - 8, char.y - 5, 16, 25);
-                ctx.strokeRect(char.x - 8, char.y - 5, 16, 25);
+                ctx.fillRect(char.x - 12, char.y - 8, 24, 35);
+                ctx.strokeRect(char.x - 12, char.y - 8, 24, 35);
 
                 // Legs
                 ctx.fillStyle = '#5eb3d6';
