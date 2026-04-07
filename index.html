@@ -1170,6 +1170,7 @@
             </div>
             <div class="minigame-status" id="minigame-status">Tekan tombol untuk menyeberang sungai lewat bebatuan.</div>
             <button class="btn-gold" id="walk-btn" onclick="walkCharacter()" style="margin-top: 15px; display:none;">🚶 Melintasi Sungai</button>
+            <button class="btn-gold" id="quiz-btn" onclick="proceedToQuiz()" style="margin-top: 10px; display:none;">➡️ Lanjut ke Soal</button>
         </div>
     </div>
 
@@ -1779,6 +1780,7 @@
             walkBtn.disabled = false;
             walkBtn.style.display = 'inline-block';
             walkBtn.innerText = '🚶 Melintasi Sungai';
+            document.getElementById('quiz-btn').style.display = 'none';
             document.getElementById('minigame-status').textContent = 'Tekan tombol untuk menyeberang sungai lewat bebatuan.';
         }
 
@@ -1808,8 +1810,12 @@
                 drawMinigame();
 
                 if (minigameState.pathIndex >= minigameState.path.length) {
-                    document.getElementById('minigame-status').textContent = 'Kamu telah sampai di rumah adat!';
-                    setTimeout(closeMinigame, 800);
+                    document.getElementById('minigame-status').textContent = 'Kamu telah sampai di rumah adat! Tekan tombol untuk lanjut ke soal.';
+                    document.getElementById('walk-btn').style.display = 'none';
+                    const quizBtn = document.getElementById('quiz-btn');
+                    quizBtn.style.display = 'inline-block';
+                    quizBtn.disabled = false;
+                    minigameState.isAnimating = false;
                     return;
                 }
 
@@ -1912,6 +1918,11 @@
             const walkBtn = document.getElementById('walk-btn');
             walkBtn.disabled = true;
             walkBtn.style.display = 'none';
+            document.getElementById('quiz-btn').style.display = 'none';
+        }
+
+        function proceedToQuiz() {
+            closeMinigame();
             showQuiz();
         }
 
